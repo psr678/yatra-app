@@ -11,10 +11,10 @@ export default async function handler(req, res) {
       headers: {
         "Content-Type": "application/json",
         "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
+        "anthropic-version": "2023-10-01"
       },
       body: JSON.stringify({
-        model: "claude-3-haiku-20240307",
+        model: "claude-3-sonnet-latest",
         max_tokens: 1000,
         system: systemPrompt || "You are a helpful India travel expert.",
         messages: [
