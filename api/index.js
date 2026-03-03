@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -19,16 +17,30 @@ export default async function handler(req, res) {
         model: "claude-3-5-sonnet-20240620",
         max_tokens: 1000,
         system: systemPrompt || "You are a helpful India travel expert.",
-        messages: [{ role: "user", content: prompt }]
+        messages: [
+          { role: "user", content: prompt }
+        ]
       })
     });
 
     const data = await response.json();
-    const text = data.content?.map(c => c.text || "").join("");
+
+    // DEBUG LOG (temporary)
+    console.log("Anthropic raw response:", JSON.stringify(data));
+
+    if (!data.content || !Array.isArray(data.content)) {
+      return res.status(500).json({ error: "Invalid response from AI" });
+    }
+
+    const text = data.content
+      .filter(item => item.type === "text")
+      .map(item => item.text)
+      .join("");
 
     res.status(200).json({ response: text });
 
   } catch (error) {
+    console.error("AI Error:", error);
     res.status(500).json({ error: "AI request failed" });
   }
 }
