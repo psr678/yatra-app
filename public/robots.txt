@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://roamai.in/sitemap.xml
