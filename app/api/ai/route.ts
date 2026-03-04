@@ -12,6 +12,8 @@ const ALLOWED_ORIGINS = [
   'https://roamai.in',
   'https://www.roamai.in',
   'https://yatra-app-psi.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:3001',
 ];
 
 const client = new Anthropic();
@@ -28,9 +30,9 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
 }
 
 export async function POST(req: Request) {
-  // 1. Origin check — reject requests not from the app domain
+  // 1. Origin check — require a known origin (blocks curl and direct API calls)
   const origin = req.headers.get('origin');
-  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+  if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
     return new Response('Forbidden', { status: 403 });
   }
 
