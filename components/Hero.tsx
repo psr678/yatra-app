@@ -26,34 +26,30 @@ export default function Hero({ onTabChange, onFilterDestinations, showToast }: H
       showToast('👨‍👩‍👧 Family trip mode on!', 'success');
     } else if (type === 'budget') {
       onTabChange('planner');
-      showToast('💰 Select your budget range below!', 'success');
+      showToast('🎒 Budget to Luxury — pick your range below!', 'success');
     }
   };
 
   return (
     <div className="hero">
-      <h1>
-        Plan Your Perfect <span>Indian Journey</span>
-      </h1>
-      <p>AI-powered itineraries, budget tracking & packing lists for every Indian traveller</p>
+      <h1>Plan Your Perfect <span>Indian Journey</span> 🇮🇳</h1>
+      <p>AI-powered travel planning for every kind of explorer</p>
       <div className="hero-badges">
-        <span className="badge badge-clickable" style={{ cursor: 'pointer' }} onClick={() => handleBadgeClick('seasonal')}>
-          🌸 Seasonal Guide
-        </span>
-        <span className="badge women badge-clickable" style={{ cursor: 'pointer' }} onClick={() => handleBadgeClick('women')}>
-          👩 Women-Friendly
-        </span>
-        <span className="badge single badge-clickable" style={{ cursor: 'pointer' }} onClick={() => handleBadgeClick('solo')}>
-          🧳 Solo Travel
-        </span>
-        <span className="badge badge-clickable" style={{ cursor: 'pointer' }} onClick={() => handleBadgeClick('family')}>
-          👨‍👩‍👧 Family Trips
-        </span>
-        <span className="badge badge-clickable" style={{ cursor: 'pointer' }} onClick={() => handleBadgeClick('budget')}>
-          💰 Budget Travel
-        </span>
-        <span className="badge">🇮🇳 Domestic Travel</span>
-        <span className="badge">✈️ Free to Use</span>
+        <div className="badge badge-clickable" style={{ cursor: 'pointer' }} onClick={() => handleBadgeClick('seasonal')} title="Browse seasonal travel picks">
+          🌸 <span>Seasonal Picks</span>
+        </div>
+        <div className="badge women badge-clickable" style={{ cursor: 'pointer' }} onClick={() => handleBadgeClick('women')} title="Women-friendly destinations">
+          👩 <span>Women Friendly</span>
+        </div>
+        <div className="badge single badge-clickable" style={{ cursor: 'pointer' }} onClick={() => handleBadgeClick('solo')} title="Solo travel destinations">
+          🧳 <span>Solo Travel</span>
+        </div>
+        <div className="badge badge-clickable" style={{ cursor: 'pointer' }} onClick={() => handleBadgeClick('family')} title="Family trip ideas">
+          👨‍👩‍👧 <span>Family Trips</span>
+        </div>
+        <div className="badge badge-clickable" style={{ cursor: 'pointer' }} onClick={() => handleBadgeClick('budget')} title="Budget to luxury options">
+          🎒 <span>Budget to Luxury</span>
+        </div>
       </div>
     </div>
   );

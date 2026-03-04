@@ -3,15 +3,19 @@
 import { useState, useEffect } from 'react';
 
 export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void] {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    if (typeof window === 'undefined') return initialValue;
+  // Always start with initialValue so server and client render identically (no hydration mismatch).
+  // The useEffect below syncs the real stored value after hydration.
+  const [storedValue, setStoredValue] = useState<T>(initialValue);
+
+  useEffect(() => {
     try {
       const item = localStorage.getItem(key);
-      return item !== null ? (JSON.parse(item) as T) : initialValue;
+      if (item !== null) setStoredValue(JSON.parse(item) as T);
     } catch {
-      return initialValue;
+      // ignore
     }
-  });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 
   const setValue = (value: T | ((prev: T) => T)) => {
     try {

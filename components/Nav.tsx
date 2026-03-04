@@ -1,6 +1,7 @@
 'use client';
 
 import { useDarkMode } from '@/hooks/useDarkMode';
+import ThemePicker, { useAppTheme } from '@/components/ThemePicker';
 import type { TabId } from '@/types';
 
 interface NavProps {
@@ -19,6 +20,7 @@ const tabs: { id: TabId; label: string; icon: string }[] = [
 
 export default function Nav({ activeTab, onTabChange }: NavProps) {
   const { isDark, toggle } = useDarkMode();
+  const { themeId, setTheme } = useAppTheme();
 
   return (
     <nav>
@@ -43,6 +45,7 @@ export default function Nav({ activeTab, onTabChange }: NavProps) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }}>
+        <ThemePicker themeId={themeId} setTheme={setTheme} />
         <button className="dark-toggle" onClick={toggle} title="Toggle dark mode">
           {isDark ? '☀️' : '🌙'} <span>{isDark ? 'Light' : 'Dark'}</span>
         </button>
