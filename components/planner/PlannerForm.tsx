@@ -197,21 +197,31 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast
         </div>
 
         {/* Action buttons */}
-        <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           <button className="btn" onClick={handleGenerate} disabled={isLoading}>
             ✨ Create My Itinerary
           </button>
           <button className="btn teal" onClick={handleSeasonalTip} disabled={isLoading}>
             🌤️ When Should I Go?
           </button>
-          <button className="btn pink" onClick={handleWomenTip} disabled={isLoading}>
+          <button
+            onClick={handleWomenTip}
+            disabled={isLoading}
+            title="Get a women's safety guide for your destination"
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--pink, #E91E8C)', fontSize: '0.82rem', fontFamily: "'Nunito', sans-serif",
+              textDecoration: 'underline', textDecorationStyle: 'dotted', padding: '4px 0',
+              opacity: isLoading ? 0.5 : 1,
+            }}
+          >
             👩 Women&apos;s Safety Guide
           </button>
         </div>
 
         {/* AI disclaimer */}
         <p style={{ fontSize: '0.72rem', color: '#aaa', marginTop: '12px', lineHeight: 1.5 }}>
-          ⚠️ <strong>AI Disclaimer:</strong> Itineraries are AI-generated and for planning reference only. Always verify prices, availability, safety conditions and local regulations independently before travel. Yatra is not responsible for inaccuracies.
+          ⚠️ <strong>AI Disclaimer:</strong> Itineraries are AI-generated and for planning reference only. Always verify prices, availability, safety conditions and local regulations independently before travel. Roamai is not responsible for inaccuracies.
         </p>
       </div>
 

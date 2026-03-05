@@ -12,12 +12,32 @@ export interface AppTheme {
 export const themes: AppTheme[] = [
   {
     id: 'default',
-    label: 'Classic Yatra',
+    label: 'Classic Roamai',
     emoji: '🪔',
     vars: {
       '--saffron': '#FF6B00', '--deep-saffron': '#E85D00', '--gold': '#F0A500',
       '--teal': '#00897B', '--maroon': '#8B1A1A', '--cream': '#FFF8F0',
       '--card-bg': '#FFFAF4', '--border': '#F0D5B0',
+    },
+  },
+  {
+    id: 'modern',
+    label: 'Modern Coast',
+    emoji: '🌊',
+    vars: {
+      '--saffron': '#3949AB', '--deep-saffron': '#303F9F', '--gold': '#00BCD4',
+      '--teal': '#00897B', '--maroon': '#1A237E', '--cream': '#F5F7FF',
+      '--card-bg': '#FFFFFF', '--border': '#C5CAE9',
+    },
+  },
+  {
+    id: 'earthy',
+    label: 'Earthy Wanderer',
+    emoji: '🏺',
+    vars: {
+      '--saffron': '#C0622F', '--deep-saffron': '#A0522D', '--gold': '#D4A017',
+      '--teal': '#2E7D32', '--maroon': '#5D3A1A', '--cream': '#FAF3E0',
+      '--card-bg': '#FDF6E3', '--border': '#E8D5B0',
     },
   },
   {

@@ -6,10 +6,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Yatra – Indian Domestic Travel Planner | AI Trip Itinerary, Budget & Packing',
-  description: 'Plan your perfect Indian trip with Yatra – the AI-powered travel planner for domestic travel. Get personalised itineraries, budget tracking, packing checklists, women-friendly trip flags, seasonal recommendations and more. Free to use!',
-  keywords: 'Indian travel planner, domestic travel India, AI itinerary India, free trip planner India, travel itinerary generator India, budget travel India, women solo travel India safe, Rajasthan trip planner, Kerala backwater travel, Goa trip planner, Himachal Pradesh travel, Ladakh trip planner, Varanasi travel guide, travel budget tracker rupees, packing checklist India, best time to visit India by season, senior citizen travel India, family trip India, solo travel India, yatra planner, safar plan India',
-  authors: [{ name: 'Yatra – Indian Travel Planner' }],
+  title: 'Roamai – AI Travel Companion for India | Itinerary, Budget & Packing',
+  description: 'Roamai (రోమేయ్) — roam around freely. Your AI-powered travel companion for Indian domestic travel. Get personalised itineraries, budget tracking, packing checklists, women-friendly trip flags, seasonal recommendations and more. Free to use!',
+  keywords: 'roamai, Indian travel planner, domestic travel India, AI itinerary India, free trip planner India, travel itinerary generator India, budget travel India, women solo travel India safe, Rajasthan trip planner, Kerala backwater travel, Goa trip planner, Himachal Pradesh travel, Ladakh trip planner, Varanasi travel guide, travel budget tracker rupees, packing checklist India, best time to visit India by season, senior citizen travel India, family trip India, solo travel India',
+  authors: [{ name: 'Roamai – AI Travel Companion for India' }],
   robots: 'index, follow',
   metadataBase: new URL('https://roamai.in'),
   alternates: {
@@ -18,26 +18,25 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     url: 'https://roamai.in/',
-    title: 'Yatra – AI-Powered Indian Travel Planner 🇮🇳',
-    description: 'Plan your dream Indian trip with AI! Get personalised itineraries, budget tracking, packing checklists, women-friendly flags & seasonal travel tips. Free to use!',
-    images: ['https://roamai.in/preview.png'],
-    siteName: 'Yatra – Indian Travel Planner',
+    title: 'Roamai – Your AI Travel Companion for India 🇮🇳',
+    description: 'Roam freely across Incredible India with AI! Personalised itineraries, budget tracking, packing checklists, women-friendly flags & seasonal travel tips. Free to use!',
+    siteName: 'Roamai',
     locale: 'en_IN',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Yatra – AI-Powered Indian Travel Planner 🇮🇳',
-    description: 'Plan your dream Indian trip with AI! Personalised itineraries, budget tracking, women-friendly flags & seasonal tips. Free!',
-    images: ['https://roamai.in/preview.png'],
+    title: 'Roamai – Your AI Travel Companion for India 🇮🇳',
+    description: 'Roam freely across Incredible India with AI! Personalised itineraries, budget tracking, women-friendly flags & seasonal tips. Free!',
   },
 };
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
-  name: 'Yatra – Indian Travel Planner',
+  name: 'Roamai',
+  alternateName: 'రోమేయ్',
   url: 'https://roamai.in/',
-  description: 'AI-powered Indian domestic travel planner with itinerary generation, budget tracking, packing checklists, women-friendly trip planning, and seasonal travel recommendations.',
+  description: 'AI-powered Indian domestic travel companion with itinerary generation, budget tracking, packing checklists, women-friendly trip planning, and seasonal travel recommendations.',
   applicationCategory: 'TravelApplication',
   operatingSystem: 'Any',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },

@@ -30,8 +30,15 @@ nav {
 }
 .logo { display: flex; align-items: center; gap: 10px; }
 .logo-icon { font-size: 2rem; }
+.logo-r {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--maroon); color: var(--cream);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.5rem;
+  flex-shrink: 0; box-shadow: 0 2px 8px rgba(139,26,26,0.3);
+}
 .logo-text { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #FFD700; letter-spacing: 2px; }
-.logo-sub { font-size: 0.65rem; color: var(--gold); letter-spacing: 4px; text-transform: uppercase; display: block; margin-top: -4px; }
+.logo-sub { font-size: 0.7rem; color: var(--gold); display: block; margin-top: -4px; opacity: 0.85; }
 .nav-tabs { display: flex; gap: 4px; }
 .nav-tab {
   background: none; border: none; color: rgba(255,255,255,0.75); cursor: pointer;
@@ -42,13 +49,23 @@ nav {
 .nav-tab.active { border-bottom: 2px solid var(--gold); }
 
 /* ── HERO ── */
+@keyframes heroFloat {
+  0%   { transform: translateY(0px)   rotate(0deg);  opacity: 0.5; }
+  33%  { transform: translateY(-14px) rotate(4deg);  opacity: 0.75; }
+  66%  { transform: translateY(-6px)  rotate(-3deg); opacity: 0.6; }
+  100% { transform: translateY(0px)   rotate(0deg);  opacity: 0.5; }
+}
 .hero {
-  background: linear-gradient(160deg, #8B1A1A 0%, #E85D00 40%, #F0A500 80%, #FFD700 100%);
+  /* Indian tricolor: saffron → white → India green, with a dark overlay for text readability */
+  background:
+    linear-gradient(rgba(20,8,0,0.52), rgba(20,8,0,0.52)),
+    linear-gradient(180deg, #FF9933 0%, #FF9933 33%, #FFFFFF 33%, #FFFFFF 66%, #138808 66%, #138808 100%);
   padding: 60px 2rem 80px; text-align: center; position: relative; overflow: hidden;
 }
 .hero::before {
   content: ''; position: absolute; inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M40 40m-30 0a30 30 0 1 0 60 0a30 30 0 1 0-60 0M40 20l5 10h10l-8 7 3 11-10-7-10 7 3-11-8-7h10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M40 40m-30 0a30 30 0 1 0 60 0a30 30 0 1 0-60 0M40 20l5 10h10l-8 7 3 11-10-7-10 7 3-11-8-7h10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
 }
 .hero h1 { font-family: 'Playfair Display', serif; font-size: 3.2rem; color: #fff; text-shadow: 0 2px 20px rgba(0,0,0,0.3); position: relative; }
 .hero h1 span { color: #FFD700; font-style: italic; }

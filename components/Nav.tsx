@@ -2,6 +2,7 @@
 
 import { useDarkMode } from '@/hooks/useDarkMode';
 import ThemePicker, { useAppTheme } from '@/components/ThemePicker';
+import CompassLogo from '@/components/CompassLogo';
 import type { TabId } from '@/types';
 
 interface NavProps {
@@ -25,10 +26,10 @@ export default function Nav({ activeTab, onTabChange }: NavProps) {
   return (
     <nav>
       <div className="logo">
-        <span className="logo-icon">🪔</span>
+        <CompassLogo size={44} />
         <div>
-          <div className="logo-text">Yatra</div>
-          <span className="logo-sub">Indian Travel Planner</span>
+          <div className="logo-text">Roamai</div>
+          <span className="logo-sub">రోమేయ్ · Travel Companion</span>
         </div>
       </div>
 
