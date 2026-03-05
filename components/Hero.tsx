@@ -1,34 +1,40 @@
 'use client';
 
-// Subtle floating landmarks — corners only, don't crowd the compact banner
-const LANDMARKS = [
-  { emoji: '🕌', style: { top: '8%',    left: '2%'  }, delay: '0s',   dur: '5.2s' },
-  { emoji: '🏰', style: { top: '15%',   right: '3%' }, delay: '1.1s', dur: '6.0s' },
-  { emoji: '🐯', style: { bottom: '8%', left: '4%'  }, delay: '1.8s', dur: '5.5s' },
-  { emoji: '🦚', style: { bottom: '5%', right: '2%' }, delay: '0.6s', dur: '4.8s' },
-  { emoji: '🪷', style: { top: '10%',   left: '48%' }, delay: '2.2s', dur: '6.3s' },
-  { emoji: '🏔️', style: { bottom: '10%',left: '30%' }, delay: '1.4s', dur: '5.8s' },
+// "Roamai" written in 8 Indian scripts — floated subtly at the corners
+const SCRIPT_FLOATERS = [
+  { text: 'రోమేయ్',  lang: 'te', style: { top: '10%',    left: '2%'  }, delay: '0s',   dur: '5.2s' },
+  { text: 'रोमाई',   lang: 'hi', style: { top: '12%',    right: '3%' }, delay: '1.1s', dur: '6.0s' },
+  { text: 'ரோமை',    lang: 'ta', style: { bottom: '12%', left: '3%'  }, delay: '1.8s', dur: '5.5s' },
+  { text: 'ರೋಮೈ',   lang: 'kn', style: { bottom: '8%',  right: '2%' }, delay: '0.6s', dur: '4.8s' },
+  { text: 'রোমাই',   lang: 'bn', style: { top: '8%',     left: '44%' }, delay: '2.2s', dur: '6.3s' },
+  { text: 'റോമൈ',   lang: 'ml', style: { bottom: '14%', left: '28%' }, delay: '1.4s', dur: '5.8s' },
+  { text: 'રોમાઈ',  lang: 'gu', style: { top: '18%',    left: '22%' }, delay: '0.9s', dur: '5.4s' },
+  { text: 'ਰੋਮਾਈ',  lang: 'pa', style: { bottom: '6%',  right: '22%'}, delay: '2.5s', dur: '6.8s' },
 ];
 
 export default function Hero() {
   return (
     <div className="hero">
-      {LANDMARKS.map((lm, i) => (
+      {SCRIPT_FLOATERS.map((f, i) => (
         <span
           key={i}
           aria-hidden="true"
+          lang={f.lang}
           style={{
             position: 'absolute',
-            fontSize: '2rem',
-            opacity: 0.45,
-            animation: `heroFloat ${lm.dur} ease-in-out ${lm.delay} infinite`,
+            fontSize: '1.1rem',
+            fontWeight: 600,
+            opacity: 0.35,
+            color: '#FFD700',
+            letterSpacing: '0.02em',
+            animation: `heroFloat ${f.dur} ease-in-out ${f.delay} infinite`,
             pointerEvents: 'none',
             userSelect: 'none',
-            filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.25))',
-            ...lm.style,
+            textShadow: '0 1px 6px rgba(0,0,0,0.4)',
+            ...f.style,
           }}
         >
-          {lm.emoji}
+          {f.text}
         </span>
       ))}
       <div className="hero-inner">
