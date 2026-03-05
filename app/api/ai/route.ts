@@ -54,8 +54,8 @@ export async function POST(req: Request) {
     }
   }
 
-  // 3. Validate body
-  const { prompt, systemPrompt } = await req.json();
+  // 3. Validate body — systemPrompt is intentionally not accepted from client
+  const { prompt } = await req.json();
   if (!prompt || typeof prompt !== 'string' || prompt.length > 8000) {
     return new Response('Bad request', { status: 400 });
   }
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
   const stream = client.messages.stream({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 3000,
-    system: systemPrompt || DEFAULT_SYSTEM,
+    system: DEFAULT_SYSTEM,
     messages: [{ role: 'user', content: prompt }],
   });
 

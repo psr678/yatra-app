@@ -1,13 +1,12 @@
 interface CallAIOptions {
   onChunk: (chunk: string) => void;
-  systemPrompt?: string;
 }
 
-export async function callAI(prompt: string, { onChunk, systemPrompt }: CallAIOptions): Promise<void> {
+export async function callAI(prompt: string, { onChunk }: CallAIOptions): Promise<void> {
   const res = await fetch('/api/ai', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, systemPrompt }),
+    body: JSON.stringify({ prompt }),
   });
 
   if (!res.ok) {
