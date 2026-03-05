@@ -49,11 +49,31 @@ nav {
 .nav-tab.active { border-bottom: 2px solid var(--gold); }
 
 /* ── HERO — compact brand strip ── */
-@keyframes heroFloat {
-  0%   { transform: translateY(0px)   rotate(0deg);  opacity: 0.45; }
-  33%  { transform: translateY(-10px) rotate(3deg);  opacity: 0.65; }
-  66%  { transform: translateY(-4px)  rotate(-2deg); opacity: 0.55; }
-  100% { transform: translateY(0px)   rotate(0deg);  opacity: 0.45; }
+/* 5 directional float variants — assigned round-robin to each script floater */
+@keyframes heroFloatUD {
+  0%,100% { transform: translateY(0px) rotate(0deg);    opacity: 0.35; }
+  50%     { transform: translateY(-12px) rotate(2deg);  opacity: 0.55; }
+}
+@keyframes heroFloatLR {
+  0%,100% { transform: translateX(0px);   opacity: 0.35; }
+  50%     { transform: translateX(14px);  opacity: 0.55; }
+}
+@keyframes heroFloatDiag1 {
+  0%,100% { transform: translate(0,0) rotate(0deg);          opacity: 0.35; }
+  33%     { transform: translate(9px,-11px) rotate(4deg);    opacity: 0.55; }
+  66%     { transform: translate(-5px,-6px) rotate(-2deg);   opacity: 0.45; }
+}
+@keyframes heroFloatDiag2 {
+  0%,100% { transform: translate(0,0) rotate(0deg);          opacity: 0.35; }
+  33%     { transform: translate(-9px,-11px) rotate(-4deg);  opacity: 0.55; }
+  66%     { transform: translate(5px,-6px) rotate(2deg);     opacity: 0.45; }
+}
+@keyframes heroFloatOrbit {
+  0%   { transform: translate(0,0);        opacity: 0.35; }
+  25%  { transform: translate(9px,-9px);   opacity: 0.5;  }
+  50%  { transform: translate(0,-15px);    opacity: 0.55; }
+  75%  { transform: translate(-9px,-9px);  opacity: 0.5;  }
+  100% { transform: translate(0,0);        opacity: 0.35; }
 }
 .hero {
   background: linear-gradient(135deg, #8B1A1A 0%, #C0622F 55%, #D4860A 100%);
