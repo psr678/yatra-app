@@ -48,40 +48,51 @@ nav {
 .nav-tab:hover, .nav-tab.active { background: rgba(255,165,0,0.2); color: #FFD700; }
 .nav-tab.active { border-bottom: 2px solid var(--gold); }
 
-/* ── HERO ── */
+/* ── HERO — compact brand strip ── */
 @keyframes heroFloat {
-  0%   { transform: translateY(0px)   rotate(0deg);  opacity: 0.5; }
-  33%  { transform: translateY(-14px) rotate(4deg);  opacity: 0.75; }
-  66%  { transform: translateY(-6px)  rotate(-3deg); opacity: 0.6; }
-  100% { transform: translateY(0px)   rotate(0deg);  opacity: 0.5; }
+  0%   { transform: translateY(0px)   rotate(0deg);  opacity: 0.45; }
+  33%  { transform: translateY(-10px) rotate(3deg);  opacity: 0.65; }
+  66%  { transform: translateY(-4px)  rotate(-2deg); opacity: 0.55; }
+  100% { transform: translateY(0px)   rotate(0deg);  opacity: 0.45; }
 }
 .hero {
-  /* Indian tricolor: saffron → white → India green, with a dark overlay for text readability */
-  background:
-    linear-gradient(rgba(20,8,0,0.52), rgba(20,8,0,0.52)),
-    linear-gradient(180deg, #FF9933 0%, #FF9933 33%, #FFFFFF 33%, #FFFFFF 66%, #138808 66%, #138808 100%);
-  padding: 60px 2rem 80px; text-align: center; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #8B1A1A 0%, #C0622F 55%, #D4860A 100%);
+  padding: 22px 2rem 60px; /* extra bottom so content-card overlaps cleanly */
+  text-align: center; position: relative; overflow: hidden;
 }
-.hero::before {
-  content: ''; position: absolute; inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M40 40m-30 0a30 30 0 1 0 60 0a30 30 0 1 0-60 0M40 20l5 10h10l-8 7 3 11-10-7-10 7 3-11-8-7h10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  pointer-events: none;
+.hero-inner { position: relative; z-index: 1; }
+.hero-brand { display: flex; align-items: baseline; justify-content: center; gap: 14px; margin-bottom: 6px; }
+.hero-brand-name {
+  font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #fff;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.35); letter-spacing: 1px;
 }
-.hero h1 { font-family: 'Playfair Display', serif; font-size: 3.2rem; color: #fff; text-shadow: 0 2px 20px rgba(0,0,0,0.3); position: relative; }
-.hero h1 span { color: #FFD700; font-style: italic; }
-.hero p { color: rgba(255,255,255,0.9); font-size: 1.15rem; margin: 12px 0 32px; position: relative; }
-.hero-badges { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; position: relative; }
-.badge {
-  background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.3); border-radius: 30px;
-  padding: 8px 18px; color: #fff; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;
-}
-.badge.women { background: rgba(233,30,140,0.25); border-color: rgba(233,30,140,0.5); }
-.badge.single { background: rgba(0,137,123,0.25); border-color: rgba(0,137,123,0.5); }
-.badge-clickable:hover { transform: translateY(-2px) scale(1.05); background: rgba(255,255,255,0.28); transition: all 0.2s; }
+.hero-brand-telugu { font-size: 1rem; color: #FFD700; font-style: italic; opacity: 0.9; }
+.hero-tagline { color: rgba(255,255,255,0.88); font-size: 0.95rem; margin: 0; }
 
-/* ── MAIN ── */
-.main { max-width: 1100px; margin: 0 auto; padding: 30px 1.5rem 60px; }
+/* ── PORTAL LAYOUT — content card overlaps the hero ── */
+.portal-wrap {
+  max-width: 1100px; margin: -48px auto 0;
+  padding: 0 1.5rem 60px; position: relative; z-index: 10;
+}
+.content-card {
+  background: var(--card-bg); border-radius: 16px;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.14); overflow: hidden;
+}
+.content-tabs {
+  display: flex; gap: 0; border-bottom: 2px solid var(--border);
+  padding: 0 16px; overflow-x: auto; background: var(--card-bg);
+  scrollbar-width: none;
+}
+.content-tabs::-webkit-scrollbar { display: none; }
+.content-tab {
+  background: none; border: none; color: #888; cursor: pointer;
+  padding: 15px 14px 13px; font-family: 'Baloo 2', sans-serif; font-size: 0.85rem;
+  transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+  border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap;
+}
+.content-tab:hover { color: var(--maroon); }
+.content-tab.active { color: var(--maroon); border-bottom-color: var(--maroon); font-weight: 600; }
+.content-body { padding: 28px; }
 .page { display: none; }
 .page.active { display: block; }
 
@@ -431,8 +442,14 @@ html[data-theme="dark"] .toggle-btn {
   color: var(--text);
 }
 html[data-theme="dark"] .hero {
-  background: linear-gradient(160deg, #2d0a00 0%, #5C2000 40%, #7a4500 80%, #8B6000 100%);
+  background: linear-gradient(135deg, #2d0a00 0%, #5C2000 55%, #7a4000 100%);
 }
+html[data-theme="dark"] .content-card { background: #1a0900; }
+html[data-theme="dark"] .content-tabs { background: #1a0900; border-color: #3d1f00; }
+html[data-theme="dark"] .content-tab { color: #997755; }
+html[data-theme="dark"] .content-tab:hover,
+html[data-theme="dark"] .content-tab.active { color: var(--gold); }
+html[data-theme="dark"] .content-tab.active { border-bottom-color: var(--gold); }
 html[data-theme="dark"] .ai-box {
   background: linear-gradient(135deg, #1a0e03 0%, #231507 100%);
 }
@@ -461,15 +478,14 @@ html[data-theme="dark"] .season-tab {
   .form-row { grid-template-columns: 1fr; }
   .form-row.three { grid-template-columns: 1fr; }
   .budget-summary { grid-template-columns: 1fr 1fr; }
-  .hero h1 { font-size: 1.7rem; }
-  .hero p { font-size: 0.95rem; }
-  .hero-badges { gap: 8px; }
-  .badge { padding: 6px 12px; font-size: 0.78rem; }
+  .hero-brand-name { font-size: 2rem; }
+  .hero-brand-telugu { font-size: 0.85rem; }
+  .hero { padding: 18px 1.5rem 52px; }
   .checklist-grid { grid-template-columns: 1fr; }
-  .nav-tabs { gap: 2px; }
-  .nav-tab span { display: none; }
-  .nav-tab { padding: 8px 10px; font-size: 0.9rem; }
-  .main { padding: 20px 1rem 60px; }
+  .content-tab span { display: none; }
+  .content-tab { padding: 13px 10px 11px; font-size: 0.9rem; }
+  .content-body { padding: 16px; }
+  .portal-wrap { padding: 0 0.75rem 40px; margin-top: -40px; }
   nav { padding: 0 1rem; min-height: 56px; }
   .logo-text { font-size: 1.3rem; }
   .logo-sub { display: none; }
@@ -484,7 +500,7 @@ html[data-theme="dark"] .season-tab {
   .footer-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
 }
 @media(max-width: 480px) {
-  .hero h1 { font-size: 1.4rem; }
+  .hero-brand-name { font-size: 1.7rem; }
   .form-row.three { grid-template-columns: 1fr; }
   .budget-summary { grid-template-columns: 1fr; }
   .season-tabs { flex-direction: column; }

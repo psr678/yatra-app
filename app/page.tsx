@@ -15,6 +15,15 @@ import type { TabId } from '@/types';
 
 type PlannerPreset = { destination?: string; travellerType?: string; ageGroup?: string } | null;
 
+const tabs: { id: TabId; label: string; icon: string }[] = [
+  { id: 'planner',      label: 'Plan Trip',    icon: '🗺️' },
+  { id: 'itinerary',   label: 'My Schedule',  icon: '📅' },
+  { id: 'budget',      label: 'Expenses',     icon: '💰' },
+  { id: 'checklist',   label: 'Packing',      icon: '✅' },
+  { id: 'destinations', label: 'Discover',    icon: '🏔️' },
+  { id: 'links',       label: 'Book Now',     icon: '🔖' },
+];
+
 const bookNowSections = [
   {
     title: '🗺️ Maps & Navigation',
@@ -80,7 +89,7 @@ const bookNowSections = [
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>('planner');
   const [plannerPreset, setPlannerPreset] = useState<PlannerPreset>(null);
-  const [destFilter, setDestFilter] = useState('all');
+  const [destFilter] = useState('all');
   const [plannerContext] = useState<{ to?: string; month?: string; age?: string; womenFriendly?: boolean }>({});
   const { toast, showToast } = useToast();
 
@@ -89,76 +98,90 @@ export default function Home() {
     setActiveTab('planner');
   };
 
-  const handleFilterDestinations = (filter: string) => {
-    setDestFilter(filter);
-  };
-
   return (
     <>
-      <Nav activeTab={activeTab} onTabChange={setActiveTab} />
-      <Hero onTabChange={setActiveTab} onFilterDestinations={handleFilterDestinations} showToast={showToast} />
+      <Nav />
+      <Hero />
 
-      <div className="main">
+      <div className="portal-wrap">
+        <div className="content-card">
 
-        {/* ── Plan Trip ── */}
-        <div className={`page ${activeTab === 'planner' ? 'active' : ''}`}>
-          <div className="section-title">🌟 AI Trip Planner</div>
-          <p className="section-sub">Tell us about your dream trip and our AI will create a personalised itinerary</p>
-          <PlannerForm plannerPreset={plannerPreset} onPresetConsumed={() => setPlannerPreset(null)} showToast={showToast} />
-        </div>
+          {/* Tab bar — inside the card */}
+          <div className="content-tabs">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                className={`content-tab ${activeTab === tab.id ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.icon} <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
 
-        {/* ── My Schedule / Saved Trips ── */}
-        <div className={`page ${activeTab === 'itinerary' ? 'active' : ''}`}>
-          <TripHistory showToast={showToast} />
-        </div>
+          <div className="content-body">
 
-        {/* ── Budget ── */}
-        <div className={`page ${activeTab === 'budget' ? 'active' : ''}`}>
-          <BudgetPage showToast={showToast} />
-        </div>
-
-        {/* ── Checklist ── */}
-        <div className={`page ${activeTab === 'checklist' ? 'active' : ''}`}>
-          <ChecklistPage plannerContext={plannerContext} showToast={showToast} />
-        </div>
-
-        {/* ── Destinations ── */}
-        <div className={`page ${activeTab === 'destinations' ? 'active' : ''}`}>
-          <DestinationsPage
-            initialFilter={destFilter}
-            plannerContext={plannerContext}
-            onPlanTrip={handlePlanTripFromDest}
-            showToast={showToast}
-          />
-        </div>
-
-        {/* ── Book Now ── */}
-        <div className={`page ${activeTab === 'links' ? 'active' : ''}`}>
-          <div className="section-title">🔖 Book & Explore</div>
-          <p className="section-sub">Quick links to book hotels, flights, trains and find your way around India</p>
-
-          {bookNowSections.map(section => (
-            <div key={section.title} style={{ marginBottom: '28px' }}>
-              <h3 style={{ fontFamily: "'Baloo 2', sans-serif", color: 'var(--maroon)', marginBottom: '12px' }}>{section.title}</h3>
-              <div className="link-grid">
-                {section.links.map(link => (
-                  <a key={link.title} href={link.url} target="_blank" rel="noopener noreferrer" className="link-card">
-                    <div className="link-icon" style={{ background: link.bg }}>{link.icon}</div>
-                    <div>
-                      <h4>{link.title}</h4>
-                      <p>{link.desc}</p>
-                    </div>
-                  </a>
-                ))}
-              </div>
+            {/* ── Plan Trip ── */}
+            <div className={`page ${activeTab === 'planner' ? 'active' : ''}`}>
+              <div className="section-title">🌟 AI Trip Planner</div>
+              <p className="section-sub">Tell us about your dream trip and our AI will create a personalised itinerary</p>
+              <PlannerForm plannerPreset={plannerPreset} onPresetConsumed={() => setPlannerPreset(null)} showToast={showToast} />
             </div>
-          ))}
 
-          <p style={{ fontSize: '0.75rem', color: '#aaa', marginTop: '8px', lineHeight: 1.6 }}>
-            ℹ️ Yatra is not affiliated with any of the above services. Links are provided for convenience. Always verify prices and terms on the respective platforms before booking.
-          </p>
+            {/* ── My Schedule / Saved Trips ── */}
+            <div className={`page ${activeTab === 'itinerary' ? 'active' : ''}`}>
+              <TripHistory showToast={showToast} />
+            </div>
+
+            {/* ── Budget ── */}
+            <div className={`page ${activeTab === 'budget' ? 'active' : ''}`}>
+              <BudgetPage showToast={showToast} />
+            </div>
+
+            {/* ── Checklist ── */}
+            <div className={`page ${activeTab === 'checklist' ? 'active' : ''}`}>
+              <ChecklistPage plannerContext={plannerContext} showToast={showToast} />
+            </div>
+
+            {/* ── Destinations ── */}
+            <div className={`page ${activeTab === 'destinations' ? 'active' : ''}`}>
+              <DestinationsPage
+                initialFilter={destFilter}
+                plannerContext={plannerContext}
+                onPlanTrip={handlePlanTripFromDest}
+                showToast={showToast}
+              />
+            </div>
+
+            {/* ── Book Now ── */}
+            <div className={`page ${activeTab === 'links' ? 'active' : ''}`}>
+              <div className="section-title">🔖 Book & Explore</div>
+              <p className="section-sub">Quick links to book hotels, flights, trains and find your way around India</p>
+
+              {bookNowSections.map(section => (
+                <div key={section.title} style={{ marginBottom: '28px' }}>
+                  <h3 style={{ fontFamily: "'Baloo 2', sans-serif", color: 'var(--maroon)', marginBottom: '12px' }}>{section.title}</h3>
+                  <div className="link-grid">
+                    {section.links.map(link => (
+                      <a key={link.title} href={link.url} target="_blank" rel="noopener noreferrer" className="link-card">
+                        <div className="link-icon" style={{ background: link.bg }}>{link.icon}</div>
+                        <div>
+                          <h4>{link.title}</h4>
+                          <p>{link.desc}</p>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              <p style={{ fontSize: '0.75rem', color: '#aaa', marginTop: '8px', lineHeight: 1.6 }}>
+                ℹ️ Roamai is not affiliated with any of the above services. Links are provided for convenience. Always verify prices and terms on the respective platforms before booking.
+              </p>
+            </div>
+
+          </div>
         </div>
-
       </div>
 
       <Footer />
