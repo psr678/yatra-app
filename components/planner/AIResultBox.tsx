@@ -8,6 +8,7 @@ interface AIResultBoxProps {
   streamedText: string;
   isLoading: boolean;
   destination: string;
+  numDays: number;
   onClear: () => void;
   showToast: (msg: string, type?: 'success' | '') => void;
 }
@@ -15,6 +16,11 @@ interface AIResultBoxProps {
 interface Section {
   title: string;
   content: string;
+}
+
+interface DayChunk {
+  title: string;
+  body: string;
 }
 
 function parseSections(text: string): { preamble: string; sections: Section[] } {
@@ -35,12 +41,37 @@ function parseSections(text: string): { preamble: string; sections: Section[] } 
   return { preamble, sections };
 }
 
-export default function AIResultBox({ streamedText, isLoading, destination, onClear, showToast }: AIResultBoxProps) {
-  const [activeTab, setActiveTab] = useState(0);
+// Split Day-by-Day content into individual day chunks (### Day N or similar headers)
+function parseDays(content: string): DayChunk[] {
+  const lines = content.split('\n');
+  const dayStarts: number[] = [];
 
-  // Reset to first tab whenever a new response starts
+  lines.forEach((line, i) => {
+    if (/^#{1,3}\s*.*\bDay\s+\d+\b/i.test(line)) {
+      dayStarts.push(i);
+    }
+  });
+
+  if (dayStarts.length < 2) return [];
+
+  return dayStarts.map((start, i) => {
+    const end = i < dayStarts.length - 1 ? dayStarts[i + 1] : lines.length;
+    const title = lines[start].replace(/^#+\s*/, '').trim();
+    const body = lines.slice(start + 1, end).join('\n').trim();
+    return { title, body };
+  });
+}
+
+export default function AIResultBox({ streamedText, isLoading, destination, numDays, onClear, showToast }: AIResultBoxProps) {
+  const [activeTab, setActiveTab] = useState(0);
+  const [openDays, setOpenDays] = useState<Set<number>>(new Set([0]));
+
+  // Reset state whenever a new response starts
   useEffect(() => {
-    if (!streamedText) setActiveTab(0);
+    if (!streamedText) {
+      setActiveTab(0);
+      setOpenDays(new Set([0]));
+    }
   }, [streamedText]);
 
   const handleExport = () => {
@@ -54,12 +85,29 @@ export default function AIResultBox({ streamedText, isLoading, destination, onCl
     showToast('📋 Itinerary copied to clipboard!', 'success');
   };
 
+  const toggleDay = (i: number) => {
+    setOpenDays(prev => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
+  };
+
   const { preamble, sections } = useMemo(() => parseSections(streamedText), [streamedText]);
 
   if (!isLoading && !streamedText) return null;
 
-  // Clamp active tab in case sections change
   const safeTab = Math.min(activeTab, Math.max(0, sections.length - 1));
+  const activeSection = sections[safeTab];
+
+  // Determine if the active tab is the Day-by-Day section and should use day-collapse
+  const isDaySection = activeSection && /itinerary|day.by.day/i.test(activeSection.title);
+  const days: DayChunk[] = useMemo(
+    () => (isDaySection ? parseDays(activeSection.content) : []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeSection?.content, isDaySection]
+  );
+  const useDayCollapse = numDays > 4 && days.length > 1;
 
   return (
     <div className="ai-box ai-box-animate" style={{ marginTop: '20px' }}>
@@ -115,8 +163,46 @@ export default function AIResultBox({ streamedText, isLoading, destination, onCl
               </div>
 
               {/* Active tab content */}
-              <div style={{ padding: '20px 16px 16px' }}>
-                <MarkdownRenderer content={sections[safeTab]?.content || ''} />
+              <div style={{ padding: '16px' }}>
+                {useDayCollapse ? (
+                  // Day-by-day with per-day collapse (>4 days)
+                  <div>
+                    <p style={{ fontSize: '0.8rem', color: '#aaa', marginBottom: '12px' }}>
+                      {days.length} days — click a day to expand
+                    </p>
+                    {days.map((day, i) => {
+                      const isOpen = openDays.has(i);
+                      return (
+                        <div key={i} style={{ borderBottom: '1px solid var(--border)', borderRadius: i === 0 ? '8px 8px 0 0' : i === days.length - 1 ? '0 0 8px 8px' : 0, overflow: 'hidden' }}>
+                          <button
+                            onClick={() => toggleDay(i)}
+                            style={{
+                              width: '100%', display: 'flex', alignItems: 'center',
+                              justifyContent: 'space-between', padding: '11px 14px',
+                              background: isOpen ? 'rgba(255,107,0,0.07)' : 'transparent',
+                              border: 'none', cursor: 'pointer',
+                              fontFamily: "'Baloo 2', sans-serif", fontSize: '0.92rem',
+                              fontWeight: 700, color: 'var(--maroon)', textAlign: 'left',
+                              transition: 'background 0.2s',
+                            }}
+                          >
+                            <span>{day.title}</span>
+                            <span style={{ fontSize: '0.75rem', opacity: 0.55, marginLeft: '8px', flexShrink: 0 }}>
+                              {isOpen ? '▲' : '▼'}
+                            </span>
+                          </button>
+                          {isOpen && (
+                            <div style={{ padding: '4px 14px 14px' }}>
+                              <MarkdownRenderer content={day.body} />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <MarkdownRenderer content={activeSection?.content || ''} />
+                )}
               </div>
             </>
           )}

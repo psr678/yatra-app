@@ -229,6 +229,7 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast
         streamedText={streamedText}
         isLoading={isLoading}
         destination={to}
+        numDays={numDays}
         onClear={() => setStreamedText('')}
         showToast={showToast}
       />
