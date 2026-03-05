@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { exportPDF, shareItinerary } from '@/lib/utils';
 
@@ -36,7 +36,12 @@ function parseSections(text: string): { preamble: string; sections: Section[] } 
 }
 
 export default function AIResultBox({ streamedText, isLoading, destination, onClear, showToast }: AIResultBoxProps) {
-  const [openSections, setOpenSections] = useState<Set<number>>(new Set([1])); // Day-by-Day open by default
+  const [activeTab, setActiveTab] = useState(0);
+
+  // Reset to first tab whenever a new response starts
+  useEffect(() => {
+    if (!streamedText) setActiveTab(0);
+  }, [streamedText]);
 
   const handleExport = () => {
     if (!streamedText) { showToast('⚠️ Generate an itinerary first!'); return; }
@@ -49,23 +54,18 @@ export default function AIResultBox({ streamedText, isLoading, destination, onCl
     showToast('📋 Itinerary copied to clipboard!', 'success');
   };
 
-  const toggleSection = (i: number) => {
-    setOpenSections(prev => {
-      const next = new Set(prev);
-      next.has(i) ? next.delete(i) : next.add(i);
-      return next;
-    });
-  };
-
   const { preamble, sections } = useMemo(() => parseSections(streamedText), [streamedText]);
 
   if (!isLoading && !streamedText) return null;
+
+  // Clamp active tab in case sections change
+  const safeTab = Math.min(activeTab, Math.max(0, sections.length - 1));
 
   return (
     <div className="ai-box ai-box-animate" style={{ marginTop: '20px' }}>
       <div className="ai-box-header">
         <span className="ai-sparkle">✨</span>
-        <span>Yatra AI Guide</span>
+        <span>Roamai AI Guide</span>
         {streamedText && (
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
             <button className="btn sm gold" onClick={handleExport}>📄 PDF</button>
@@ -80,16 +80,16 @@ export default function AIResultBox({ streamedText, isLoading, destination, onCl
           <div className="dot-pulse">
             <span /><span /><span />
           </div>
-          <span>Yatra AI is crafting your itinerary…</span>
+          <span>Roamai AI is crafting your itinerary…</span>
         </div>
       )}
 
-      {/* While streaming: flat view so user can watch text appear */}
+      {/* While streaming: flat view so the user can watch text appear */}
       {isLoading && streamedText && (
         <MarkdownRenderer content={streamedText} />
       )}
 
-      {/* After streaming: accordion sections */}
+      {/* After streaming: tabbed sections */}
       {!isLoading && streamedText && (
         <div className="ai-content">
           {preamble && (
@@ -97,42 +97,29 @@ export default function AIResultBox({ streamedText, isLoading, destination, onCl
               <MarkdownRenderer content={preamble} />
             </div>
           )}
-          {sections.map((section, i) => {
-            const isOpen = openSections.has(i);
-            return (
-              <div key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                <button
-                  onClick={() => toggleSection(i)}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 16px',
-                    background: isOpen ? 'rgba(255,107,0,0.06)' : 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontFamily: "'Baloo 2', sans-serif",
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    color: 'var(--maroon)',
-                    textAlign: 'left',
-                    transition: 'background 0.2s',
-                  }}
-                >
-                  <span>## {section.title}</span>
-                  <span style={{ fontSize: '0.85rem', opacity: 0.6, marginLeft: '8px', flexShrink: 0 }}>
-                    {isOpen ? '▲' : '▼'}
-                  </span>
-                </button>
-                {isOpen && (
-                  <div style={{ padding: '4px 16px 16px' }}>
-                    <MarkdownRenderer content={section.content} />
-                  </div>
-                )}
+
+          {sections.length > 0 && (
+            <>
+              {/* Tab bar */}
+              <div className="season-tabs" style={{ flexWrap: 'wrap', margin: '16px 16px 0', gap: '6px' }}>
+                {sections.map((section, i) => (
+                  <button
+                    key={i}
+                    className={`season-tab ${safeTab === i ? 'active' : ''}`}
+                    style={{ fontSize: '0.8rem', padding: '7px 14px' }}
+                    onClick={() => setActiveTab(i)}
+                  >
+                    {section.title}
+                  </button>
+                ))}
               </div>
-            );
-          })}
+
+              {/* Active tab content */}
+              <div style={{ padding: '20px 16px 16px' }}>
+                <MarkdownRenderer content={sections[safeTab]?.content || ''} />
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>

@@ -19,6 +19,10 @@ export function buildItineraryPrompt(data: PlannerFormData): string {
 
   const budgetLabel = budgetRanges[budget] || 'moderate (₹5,000–15,000 per person/day)';
 
+  // Determine if intercity travel costs apply
+  const normalize = (s: string) => s.trim().toLowerCase().replace(/\s+/g, '');
+  const sameCity = !from || normalize(from) === normalize(to);
+
   return `Create a comprehensive ${numDays}-day travel plan for ${people} ${people === 1 ? 'person' : 'people'} (${travellerType || 'travellers'}) going from ${from || 'India'} to ${to}${month ? ' in ' + month : ''}.
 
 **Trip Details:**
@@ -46,10 +50,23 @@ For each of the ${numDays} days provide **Morning / Afternoon / Evening** with s
 
 ---
 
+## 🗺️ Nearby Day Trips
+List 5–6 destinations within 50–250 km of ${to} that make great day trips or short excursions. For each place:
+- **[Place Name](https://www.google.com/maps/search/Place+Name+${encodeURIComponent(to)}+India)** — ~X km from ${to} (~Y hrs by road/train)
+- How to get there: cab / bus / train with approximate one-way cost
+- Top 2–3 things to see or do there
+- Best suited for: day trip / overnight / weekend getaway
+
+---
+
 ## 💰 Budget Breakdown
 | Category | Per Person / Day | Total (${people} pax × ${numDays} days) |
 |---|---|---|
-List rows for: Accommodation, Food, Transport, Activities, Shopping/Misc, then a **Grand Total** row.
+${sameCity
+  ? `List rows for: Accommodation, Food, Local Transport (auto/cab/bus within ${to} only), Activities, Shopping/Misc, then a **Grand Total** row.
+IMPORTANT: Do NOT include any flight or intercity train costs — the traveller is already in ${to} or departing from the same city.`
+  : `List rows for: Accommodation, Food, Intercity Travel (return flights or trains from ${from} to ${to}) + Local Transport, Activities, Shopping/Misc, then a **Grand Total** row.
+Include estimated return flight or train fare from ${from} to ${to} in the transport row.`}
 Base on: ${budgetLabel}.
 
 ---
