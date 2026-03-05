@@ -79,8 +79,21 @@ How to reach ${to} from ${from || 'major cities'}, and local transport options.
 
 ## 💡 Tips & Essentials
 ${womenFriendly ? '- Women safety tips for ' + to + '\n' : ''}${senior ? '- Senior citizen notes\n' : ''}- Cultural tips and local customs
-- Must-have apps for this trip
-- Emergency numbers`;
+- Must-have apps for this trip (transport, maps, translation, etc.)
+- What to avoid / common tourist mistakes
+
+---
+
+## 🆘 Emergency Contacts
+Always include these with exact numbers:
+- **Police:** 100
+- **Ambulance / Medical Emergency:** 108
+- **Fire Brigade:** 101
+- **Women's Helpline:** 1091
+- **Tourist Helpline (India Tourism):** 1800-11-1363 (toll-free)
+- **Railway Enquiry:** 139
+- **Nearest hospital or clinic** near ${to} (name + approximate location)
+- Any **${to}-specific** emergency or local authority number if applicable`;
 }
 
 export function buildChecklistPrompt(to: string, month: string, age: string, womenFriendly: boolean): string {
