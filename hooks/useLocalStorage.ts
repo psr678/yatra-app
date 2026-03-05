@@ -14,7 +14,6 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T 
     } catch {
       // ignore
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
   const setValue = (value: T | ((prev: T) => T)) => {

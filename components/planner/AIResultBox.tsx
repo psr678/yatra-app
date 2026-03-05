@@ -95,8 +95,6 @@ export default function AIResultBox({ streamedText, isLoading, destination, numD
 
   const { preamble, sections } = useMemo(() => parseSections(streamedText), [streamedText]);
 
-  if (!isLoading && !streamedText) return null;
-
   const safeTab = Math.min(activeTab, Math.max(0, sections.length - 1));
   const activeSection = sections[safeTab];
 
@@ -104,10 +102,11 @@ export default function AIResultBox({ streamedText, isLoading, destination, numD
   const isDaySection = activeSection && /itinerary|day.by.day/i.test(activeSection.title);
   const days: DayChunk[] = useMemo(
     () => (isDaySection ? parseDays(activeSection.content) : []),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [activeSection?.content, isDaySection]
   );
   const useDayCollapse = numDays > 4 && days.length > 1;
+
+  if (!isLoading && !streamedText) return null;
 
   return (
     <div className="ai-box ai-box-animate" style={{ marginTop: '20px' }}>
