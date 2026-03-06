@@ -20,6 +20,22 @@ const ALLOWED_ORIGINS = [
 
 const client = new Anthropic();
 
+function isAllowedRequestSource(req: Request): boolean {
+  const origin = req.headers.get('origin');
+  if (!origin || !ALLOWED_ORIGINS.includes(origin)) return false;
+
+  const referer = req.headers.get('referer');
+  if (!referer || !referer.startsWith(origin)) return false;
+
+  // Browser-provided fetch metadata blocks common cross-site request patterns.
+  const fetchSite = req.headers.get('sec-fetch-site');
+  if (fetchSite && fetchSite !== 'same-origin' && fetchSite !== 'same-site') {
+    return false;
+  }
+
+  return true;
+}
+
 // Lazily initialise Upstash clients only when env vars are present
 let ratelimit: Ratelimit | null = null;
 let redis: Redis | null = null;
@@ -34,9 +50,8 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
 }
 
 export async function POST(req: Request) {
-  // 1. Origin check — require a known origin (blocks curl and direct API calls)
-  const origin = req.headers.get('origin');
-  if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
+  // 1. Browser request provenance checks (origin/referer/fetch-site).
+  if (!isAllowedRequestSource(req)) {
     return new Response('Forbidden', { status: 403 });
   }
 
@@ -59,8 +74,18 @@ export async function POST(req: Request) {
   }
 
   // 3. Validate body
-  const { prompt } = await req.json();
-  if (!prompt || typeof prompt !== 'string' || prompt.length > 12000) {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return new Response('Bad request', { status: 400 });
+  }
+
+  const prompt =
+    body && typeof body === 'object' && !Array.isArray(body)
+      ? (body as { prompt?: unknown }).prompt
+      : undefined;
+  if (typeof prompt !== 'string' || prompt.length === 0 || prompt.length > 12000) {
     return new Response('Bad request', { status: 400 });
   }
 
