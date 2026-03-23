@@ -57,19 +57,23 @@ export async function POST(req: Request) {
 
   // 2. Rate limit by IP
   if (ratelimit) {
-    const ip =
-      req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
-      req.headers.get('x-real-ip') ??
-      'anonymous';
-    const { success, limit, remaining } = await ratelimit.limit(ip);
-    if (!success) {
-      return new Response('Too many requests — please wait a minute.', {
-        status: 429,
-        headers: {
-          'X-RateLimit-Limit': String(limit),
-          'X-RateLimit-Remaining': String(remaining),
-        },
-      });
+    try {
+      const ip =
+        req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+        req.headers.get('x-real-ip') ??
+        'anonymous';
+      const { success, limit, remaining } = await ratelimit.limit(ip);
+      if (!success) {
+        return new Response('Too many requests — please wait a minute.', {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': String(limit),
+            'X-RateLimit-Remaining': String(remaining),
+          },
+        });
+      }
+    } catch {
+      // Redis unavailable — skip rate limiting and continue
     }
   }
 
@@ -92,14 +96,18 @@ export async function POST(req: Request) {
   // 4. Redis response cache — return instantly for identical prompts (24h TTL)
   const cacheKey = `roamai:v1:${createHash('sha256').update(prompt).digest('hex')}`;
   if (redis) {
-    const cached = await redis.get<string>(cacheKey);
-    if (cached) {
-      return new Response(cached, {
-        headers: {
-          'Content-Type': 'text/plain; charset=utf-8',
-          'X-Cache': 'HIT',
-        },
-      });
+    try {
+      const cached = await redis.get<string>(cacheKey);
+      if (cached) {
+        return new Response(cached, {
+          headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+            'X-Cache': 'HIT',
+          },
+        });
+      }
+    } catch {
+      // Redis unavailable — skip cache and continue
     }
   }
 

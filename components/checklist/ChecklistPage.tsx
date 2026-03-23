@@ -48,7 +48,7 @@ export default function ChecklistPage({ plannerContext, showToast }: ChecklistPa
       <div className="section-title">✅ Packing Checklist</div>
       <p className="section-sub">Check items as you pack — saves automatically</p>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
         <span className="checklist-progress">{checkedCount} of {totalItems} items packed</span>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button className="btn sm teal" onClick={handleAIChecklist} disabled={aiLoading}>

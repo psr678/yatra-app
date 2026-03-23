@@ -103,7 +103,7 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast
 
       <div className="card" style={{ marginBottom: '24px' }}>
         {/* Row 1: From / To / Days / People */}
-        <div className="form-row" style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
+        <div className="form-row four">
           <div className="form-group">
             <label>📍 From (City)</label>
             <input value={from} onChange={e => setFrom(e.target.value)} placeholder="e.g. Mumbai" list="cities-list" />

@@ -163,6 +163,7 @@ export default function ThemePicker({ themeId, setTheme }: ThemePickerProps) {
           background: 'var(--card-bg)', border: '1.5px solid var(--border)',
           borderRadius: '14px', padding: '12px', minWidth: '200px',
           boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+          maxHeight: '70vh', overflowY: 'auto',
         }}>
           <div style={{ fontFamily: "'Baloo 2', sans-serif", fontSize: '0.8rem', fontWeight: 700, color: 'var(--maroon)', marginBottom: '8px', paddingLeft: '4px' }}>
             🎨 Choose Theme
