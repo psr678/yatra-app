@@ -95,10 +95,14 @@ export default function AIResultBox({
       const prompt = tabId === 'day-trips'
         ? buildDayTripsPrompt(destination)
         : buildGetTherePrompt(destination, from);
+      // Day trips and transport info are very stable — cache for 7 days
+      const ck  = tabId === 'day-trips'
+        ? `daytrips:${destination.toLowerCase().trim()}`
+        : `getthere:${destination.toLowerCase().trim()}:${(from || '').toLowerCase().trim()}`;
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, ck, ttl: 604800 }),
       });
       if (!res.ok) throw new Error();
       const text = await res.text();

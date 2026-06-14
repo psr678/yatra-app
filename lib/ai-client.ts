@@ -1,12 +1,16 @@
 interface CallAIOptions {
   onChunk: (chunk: string) => void;
+  /** Structured cache key (destination+params). Same ck = cache hit regardless of prompt wording. */
+  ck?: string;
+  /** Cache TTL in seconds. Defaults to 86400 (24h). Use higher values for stable content. */
+  ttl?: number;
 }
 
-export async function callAI(prompt: string, { onChunk }: CallAIOptions): Promise<void> {
+export async function callAI(prompt: string, { onChunk, ck, ttl }: CallAIOptions): Promise<void> {
   const res = await fetch('/api/ai', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify({ prompt, ck, ttl }),
   });
 
   if (!res.ok) {

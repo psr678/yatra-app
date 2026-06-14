@@ -75,13 +75,15 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast
     finally { setWeatherLoading(false); }
   };
 
-  const runAI = async (prompt: string, weather = false) => {
+  const runAI = async (prompt: string, weather = false, ck?: string, ttl?: number) => {
     setStreamedText('');
     setIsWeather(weather);
     setIsLoading(true);
     try {
       let fullText = '';
       await callAI(prompt, {
+        ck,
+        ttl,
         onChunk: chunk => {
           fullText += chunk;
           setStreamedText(fullText);
@@ -100,9 +102,12 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast
   const handleGenerate = async () => {
     if (!to) { showToast('⚠️ Please enter a destination'); return; }
     const formData: PlannerFormData = { from, to, numDays, month, budget, age, interests, people, travellerType, womenFriendly, spiritual, adventure, senior };
-    // Fire weather fetch in parallel — don't await it
+    // Structured cache key: ignore free-text interests so same trip config = cache hit
+    const flags = [womenFriendly && 'w', spiritual && 's', adventure && 'a', senior && 'sr'].filter(Boolean).join(',');
+    const ck = `itin:${to.toLowerCase().trim()}:${numDays}:${budget}:${month}:${travellerType}:${people}:${flags}`;
+
     fetchWeather(to, month);
-    const fullText = await runAI(buildItineraryPrompt(formData));
+    const fullText = await runAI(buildItineraryPrompt(formData), false, ck, 259200); // 3 day TTL
     if (fullText) {
       const flags = [womenFriendly && 'women-friendly', spiritual && 'spiritual', adventure && 'adventure', senior && 'senior-friendly'].filter(Boolean).join(', ');
       addTrip({ id: crypto.randomUUID(), name: `${to} – ${numDays} Days`, destination: to, from, days: numDays, people, month, result: fullText, womenFriendly, flags });

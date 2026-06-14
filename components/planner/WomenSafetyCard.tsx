@@ -30,7 +30,11 @@ export default function WomenSafetyCard({ destination }: { destination: string }
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({
+          prompt,
+          ck: `women-safety:${destination.toLowerCase().trim()}`,
+          ttl: 604800, // 7 days — safety intel for a city is stable
+        }),
       });
       if (!res.ok) throw new Error();
       const text = await res.text();

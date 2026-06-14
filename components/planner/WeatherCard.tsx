@@ -114,7 +114,11 @@ export default function WeatherCard({ data, selectedMonth }: { data: WeatherData
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: buildWeatherInsightsPrompt(data.destination) }),
+        body: JSON.stringify({
+          prompt: buildWeatherInsightsPrompt(data.destination),
+          ck: `weather-insights:${data.destination.toLowerCase().trim()}`,
+          ttl: 604800, // 7 days — climate tips barely change
+        }),
       });
       if (!res.ok) throw new Error();
       const text = await res.text();

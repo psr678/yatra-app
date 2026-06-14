@@ -114,7 +114,7 @@ async function streamGroq(prompt: string, encoder: TextEncoder, onChunk: (b: Uin
   if (!apiKey) throw new Error('GROQ_API_KEY not configured');
   const groq = new Groq({ apiKey });
   const stream = await groq.chat.completions.create({
-    model: 'llama-3.1-8b-instant',  // 500K tokens/day — preserve the 70b quota
+    model: 'llama-3.3-70b-versatile',  // last-resort fallback — quality over quota
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user',   content: prompt },
@@ -151,13 +151,19 @@ export async function POST(req: Request) {
   let body: unknown;
   try { body = await req.json(); } catch { return new Response('Bad request', { status: 400 }); }
 
-  const prompt = body && typeof body === 'object' && !Array.isArray(body)
-    ? (body as { prompt?: unknown }).prompt : undefined;
+  const b = body && typeof body === 'object' && !Array.isArray(body)
+    ? body as { prompt?: unknown; ck?: unknown; ttl?: unknown } : {};
+
+  const prompt = b.prompt;
   if (typeof prompt !== 'string' || prompt.length === 0 || prompt.length > 12000)
     return new Response('Bad request', { status: 400 });
 
-  // Redis cache
-  const cacheKey = `roamai:v3:${createHash('sha256').update(prompt).digest('hex')}`;
+  // ck = structured cache key from client (destination+params); falls back to prompt hash
+  // ttl = seconds; client sends longer TTL for stable content (day trips, getting there)
+  const ckRaw  = typeof b.ck  === 'string' ? b.ck.slice(0, 256) : null;
+  const ttl    = typeof b.ttl === 'number' && b.ttl > 0 ? Math.min(b.ttl, 604800) : 86400;
+  const cacheKey = `roamai:v3:${createHash('sha256').update(ckRaw ?? prompt).digest('hex')}`;
+
   if (redis) {
     try {
       const cached = await redis.get<string>(cacheKey);
@@ -208,7 +214,7 @@ export async function POST(req: Request) {
         controller.close();
 
         if (redis && fullResponse) {
-          await redis.setex(cacheKey, 86400, fullResponse).catch(() => {});
+          await redis.setex(cacheKey, ttl, fullResponse).catch(() => {});
         }
       },
     }),
