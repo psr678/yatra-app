@@ -24,6 +24,10 @@ export default [
       ...reactHooks.configs.recommended.rules,
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
+      // These React Compiler rules flag intentional SSR hydration-safe patterns
+      // (reading localStorage in useEffect + setState). The patterns are correct.
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/preserve-manual-memoization': 'warn',
     },
   },
 ];

@@ -117,17 +117,17 @@ const STORAGE_KEY = 'yatra_theme_id';
 export function useAppTheme() {
   const [themeId, setThemeId] = useState('default');
 
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY) || 'default';
-    setThemeId(saved);
-    applyTheme(saved);
-  }, []);
-
   const applyTheme = (id: string) => {
     const theme = themes.find(t => t.id === id) || themes[0];
     const root = document.documentElement;
     Object.entries(theme.vars).forEach(([k, v]) => root.style.setProperty(k, v));
   };
+
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY) || 'default';
+    setThemeId(saved);
+    applyTheme(saved);
+  }, []);
 
   const setTheme = (id: string) => {
     setThemeId(id);

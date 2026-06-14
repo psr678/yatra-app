@@ -102,7 +102,7 @@ export default function AIResultBox({ streamedText, isLoading, destination, numD
   const isDaySection = activeSection && /itinerary|day.by.day/i.test(activeSection.title);
   const days: DayChunk[] = useMemo(
     () => (isDaySection ? parseDays(activeSection.content) : []),
-    [activeSection?.content, isDaySection]
+    [activeSection, isDaySection]
   );
   const useDayCollapse = numDays > 4 && days.length > 1;
 
