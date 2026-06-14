@@ -9,7 +9,7 @@ export default function Footer() {
       color: 'rgba(255,255,255,0.7)',
       padding: '40px 2rem 20px',
       marginTop: '60px',
-      fontFamily: "'Nunito', sans-serif",
+      fontFamily: "var(--font-nunito), sans-serif",
       fontSize: '0.85rem',
     }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
@@ -20,7 +20,7 @@ export default function Footer() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
               <CompassLogo size={42} />
               <div>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.3rem', color: '#FFD700', lineHeight: 1.2 }}>Roamai</div>
+                <div style={{ fontFamily: "var(--font-playfair), serif", fontSize: '1.3rem', color: '#FFD700', lineHeight: 1.2 }}>Roamai</div>
                 <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>రోమేయ్ — roam around freely</div>
               </div>
             </div>
@@ -34,7 +34,7 @@ export default function Footer() {
 
           {/* Popular Destinations */}
           <div>
-            <div style={{ fontWeight: 700, color: '#FFD700', marginBottom: '12px', fontFamily: "'Baloo 2', sans-serif" }}>
+            <div style={{ fontWeight: 700, color: '#FFD700', marginBottom: '12px', fontFamily: "var(--font-baloo2), sans-serif" }}>
               Popular Destinations
             </div>
             <div style={{ lineHeight: 2, color: 'rgba(255,255,255,0.6)' }}>
@@ -48,7 +48,7 @@ export default function Footer() {
 
           {/* Travel Categories */}
           <div>
-            <div style={{ fontWeight: 700, color: '#FFD700', marginBottom: '12px', fontFamily: "'Baloo 2', sans-serif" }}>
+            <div style={{ fontWeight: 700, color: '#FFD700', marginBottom: '12px', fontFamily: "var(--font-baloo2), sans-serif" }}>
               Travel Categories
             </div>
             <div style={{ lineHeight: 2, color: 'rgba(255,255,255,0.6)' }}>

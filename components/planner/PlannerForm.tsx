@@ -60,7 +60,7 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast
         onChunk: chunk => {
           fullText += chunk;
           setStreamedText(fullText);
-          if (isLoading) setIsLoading(false);
+          setIsLoading(false);
         },
       });
       setIsLoading(false);
@@ -78,7 +78,7 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast
     const fullText = await runAI(buildItineraryPrompt(formData));
     if (fullText) {
       const flags = [womenFriendly && 'women-friendly', spiritual && 'spiritual', adventure && 'adventure', senior && 'senior-friendly'].filter(Boolean).join(', ');
-      addTrip({ id: Date.now(), name: `${to} – ${numDays} Days, ${people} pax`, destination: to, from, days: numDays, people, month, result: fullText, womenFriendly, flags });
+      addTrip({ id: crypto.randomUUID(), name: `${to} – ${numDays} Days, ${people} pax`, destination: to, from, days: numDays, people, month, result: fullText, womenFriendly, flags });
       showToast('✅ Itinerary ready!', 'success');
     }
   };
@@ -210,7 +210,7 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast
             title="Get a women's safety guide for your destination"
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              color: 'var(--pink, #E91E8C)', fontSize: '0.82rem', fontFamily: "'Nunito', sans-serif",
+              color: 'var(--pink, #E91E8C)', fontSize: '0.82rem', fontFamily: "var(--font-nunito), sans-serif",
               textDecoration: 'underline', textDecorationStyle: 'dotted', padding: '4px 0',
               opacity: isLoading ? 0.5 : 1,
             }}

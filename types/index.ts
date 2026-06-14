@@ -1,7 +1,7 @@
 export type TabId = 'planner' | 'itinerary' | 'budget' | 'checklist' | 'destinations' | 'links';
 
 export interface Trip {
-  id: number;
+  id: string;
   name: string;
   destination: string;
   from: string;

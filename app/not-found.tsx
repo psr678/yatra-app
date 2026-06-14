@@ -6,14 +6,14 @@ export default function NotFound() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: "'Nunito', sans-serif",
+      fontFamily: "var(--font-nunito), sans-serif",
       background: 'var(--cream)',
       textAlign: 'center',
       padding: '40px 20px',
     }}>
       <div style={{ fontSize: '5rem', marginBottom: '16px' }}>🗺️</div>
       <h1 style={{
-        fontFamily: "'Playfair Display', serif",
+        fontFamily: "var(--font-playfair), serif",
         fontSize: '2.5rem',
         color: 'var(--maroon)',
         margin: '0 0 12px',
@@ -34,7 +34,7 @@ export default function NotFound() {
           padding: '12px 28px',
           borderRadius: '10px',
           textDecoration: 'none',
-          fontFamily: "'Baloo 2', sans-serif",
+          fontFamily: "var(--font-baloo2), sans-serif",
           fontWeight: 700,
           fontSize: '1rem',
         }}

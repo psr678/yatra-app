@@ -13,7 +13,7 @@ export default function TripHistory({ showToast }: TripHistoryProps) {
   const { trips, deleteTrip } = useTrips();
   const [viewingTrip, setViewingTrip] = useState<Trip | null>(null);
 
-  const handleDelete = (id: number, e: React.MouseEvent) => {
+  const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     deleteTrip(id);
     if (viewingTrip?.id === id) setViewingTrip(null);

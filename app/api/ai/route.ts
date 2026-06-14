@@ -3,6 +3,8 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { createHash } from 'crypto';
 
+export const maxDuration = 60;
+
 const DEFAULT_SYSTEM =
   'You are Roamai Guide, a friendly and knowledgeable Indian travel expert. ' +
   'You give practical, culturally aware travel advice for Indian domestic travel. ' +

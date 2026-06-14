@@ -56,7 +56,7 @@ export default function DestinationsPage({ initialFilter, plannerContext, onPlan
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
           <span style={{ fontSize: '1.4rem' }}>{season === 'winter' ? '❄️' : season === 'summer' ? '☀️' : '🌧️'}</span>
           <div>
-            <div style={{ fontFamily: "'Baloo 2', sans-serif", fontWeight: 700, color: 'var(--maroon)', fontSize: '1rem' }}>
+            <div style={{ fontFamily: "var(--font-baloo2), sans-serif", fontWeight: 700, color: 'var(--maroon)', fontSize: '1rem' }}>
               Now Trending — {seasonLabel}
             </div>
             <div style={{ fontSize: '0.82rem', color: '#888' }}>{seasonInfo.tip}</div>
@@ -78,7 +78,7 @@ export default function DestinationsPage({ initialFilter, plannerContext, onPlan
 
       {/* ── Upcoming Festivals ── */}
       <div style={{ marginBottom: '24px' }}>
-        <div style={{ fontFamily: "'Baloo 2', sans-serif", fontWeight: 700, color: 'var(--maroon)', fontSize: '1rem', marginBottom: '12px' }}>
+        <div style={{ fontFamily: "var(--font-baloo2), sans-serif", fontWeight: 700, color: 'var(--maroon)', fontSize: '1rem', marginBottom: '12px' }}>
           🎉 Upcoming Festivals — Plan Around Them!
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
@@ -87,7 +87,7 @@ export default function DestinationsPage({ initialFilter, plannerContext, onPlan
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                 <span style={{ fontSize: '1.6rem' }}>{fest.emoji}</span>
                 <div>
-                  <div style={{ fontFamily: "'Baloo 2', sans-serif", fontWeight: 700, fontSize: '0.92rem', color: 'var(--dark)' }}>
+                  <div style={{ fontFamily: "var(--font-baloo2), sans-serif", fontWeight: 700, fontSize: '0.92rem', color: 'var(--dark)' }}>
                     {fest.name}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--saffron)' }}>
@@ -116,7 +116,7 @@ export default function DestinationsPage({ initialFilter, plannerContext, onPlan
       {/* ── This month's special ── */}
       {thisMonthFestivals.length > 0 && (
         <div className="card" style={{ marginBottom: '24px', borderColor: 'var(--gold)', borderWidth: '2px' }}>
-          <div style={{ fontFamily: "'Baloo 2', sans-serif", fontWeight: 700, color: 'var(--maroon)', marginBottom: '8px' }}>
+          <div style={{ fontFamily: "var(--font-baloo2), sans-serif", fontWeight: 700, color: 'var(--maroon)', marginBottom: '8px' }}>
             🎊 This Month&apos;s Special
           </div>
           {thisMonthFestivals.map(fest => (

@@ -57,7 +57,7 @@ export default function SeasonalGuide({ plannerContext, showToast }: SeasonalGui
       </div>
 
       <div className="card">
-        <div style={{ fontFamily: "'Baloo 2', sans-serif", fontSize: '1.05rem', fontWeight: 700, color: 'var(--maroon)', marginBottom: '12px' }}>
+        <div style={{ fontFamily: "var(--font-baloo2), sans-serif", fontSize: '1.05rem', fontWeight: 700, color: 'var(--maroon)', marginBottom: '12px' }}>
           {season.title}
         </div>
         <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.8, fontSize: '0.93rem' }}>{season.content}</div>

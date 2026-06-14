@@ -76,7 +76,7 @@ export default function BudgetPage({ showToast }: BudgetPageProps) {
       </div>
 
       <div className="card" style={{ marginBottom: '24px' }}>
-        <div style={{ fontFamily: "'Baloo 2', sans-serif", fontWeight: 700, marginBottom: '14px', color: 'var(--maroon)' }}>
+        <div style={{ fontFamily: "var(--font-baloo2), sans-serif", fontWeight: 700, marginBottom: '14px', color: 'var(--maroon)' }}>
           ➕ Add Expense
         </div>
         <div className="form-row three">
@@ -102,7 +102,7 @@ export default function BudgetPage({ showToast }: BudgetPageProps) {
 
       {expenses.length > 0 && (
         <div className="card">
-          <div style={{ fontFamily: "'Baloo 2', sans-serif", fontWeight: 700, marginBottom: '14px', color: 'var(--maroon)' }}>
+          <div style={{ fontFamily: "var(--font-baloo2), sans-serif", fontWeight: 700, marginBottom: '14px', color: 'var(--maroon)' }}>
             📋 Expenses
           </div>
           {expenses.map(exp => (

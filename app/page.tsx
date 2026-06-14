@@ -160,7 +160,7 @@ export default function Home() {
 
               {bookNowSections.map(section => (
                 <div key={section.title} style={{ marginBottom: '28px' }}>
-                  <h3 style={{ fontFamily: "'Baloo 2', sans-serif", color: 'var(--maroon)', marginBottom: '12px' }}>{section.title}</h3>
+                  <h3 style={{ fontFamily: "var(--font-baloo2), sans-serif", color: 'var(--maroon)', marginBottom: '12px' }}>{section.title}</h3>
                   <div className="link-grid">
                     {section.links.map(link => (
                       <a key={link.title} href={link.url} target="_blank" rel="noopener noreferrer" className="link-card">

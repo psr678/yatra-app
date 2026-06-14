@@ -1,5 +1,28 @@
 import type { Metadata, Viewport } from 'next';
+import { Playfair_Display, Baloo_2, Nunito } from 'next/font/google';
 import './globals.css';
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['700'],
+  style: ['normal', 'italic'],
+  variable: '--font-playfair',
+  display: 'swap',
+});
+
+const baloo2 = Baloo_2({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-baloo2',
+  display: 'swap',
+});
+
+const nunito = Nunito({
+  subsets: ['latin'],
+  weight: ['400', '600'],
+  variable: '--font-nunito',
+  display: 'swap',
+});
 
 export const viewport: Viewport = {
   themeColor: '#8B1A1A',
@@ -59,16 +82,12 @@ const jsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${playfair.variable} ${baloo2.variable} ${nunito.variable}`}>
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('yatra_theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})()`,
           }}
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Baloo+2:wght@400;600;700&family=Nunito:wght@400;600&display=swap"
-          rel="stylesheet"
         />
         <script
           type="application/ld+json"

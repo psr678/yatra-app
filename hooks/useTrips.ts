@@ -10,7 +10,7 @@ export function useTrips() {
     setTrips(prev => [trip, ...prev]);
   };
 
-  const deleteTrip = (id: number) => {
+  const deleteTrip = (id: string) => {
     setTrips(prev => prev.filter(t => t.id !== id));
   };
 

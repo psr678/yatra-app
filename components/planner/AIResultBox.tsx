@@ -180,7 +180,7 @@ export default function AIResultBox({ streamedText, isLoading, destination, numD
                               justifyContent: 'space-between', padding: '11px 14px',
                               background: isOpen ? 'rgba(255,107,0,0.07)' : 'transparent',
                               border: 'none', cursor: 'pointer',
-                              fontFamily: "'Baloo 2', sans-serif", fontSize: '0.92rem',
+                              fontFamily: "var(--font-baloo2), sans-serif", fontSize: '0.92rem',
                               fontWeight: 700, color: 'var(--maroon)', textAlign: 'left',
                               transition: 'background 0.2s',
                             }}

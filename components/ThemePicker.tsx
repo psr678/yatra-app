@@ -165,7 +165,7 @@ export default function ThemePicker({ themeId, setTheme }: ThemePickerProps) {
           boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
           maxHeight: '70vh', overflowY: 'auto',
         }}>
-          <div style={{ fontFamily: "'Baloo 2', sans-serif", fontSize: '0.8rem', fontWeight: 700, color: 'var(--maroon)', marginBottom: '8px', paddingLeft: '4px' }}>
+          <div style={{ fontFamily: "var(--font-baloo2), sans-serif", fontSize: '0.8rem', fontWeight: 700, color: 'var(--maroon)', marginBottom: '8px', paddingLeft: '4px' }}>
             🎨 Choose Theme
           </div>
           {themes.map(theme => (
@@ -177,7 +177,7 @@ export default function ThemePicker({ themeId, setTheme }: ThemePickerProps) {
                 padding: '8px 10px', borderRadius: '8px', border: 'none',
                 background: themeId === theme.id ? 'rgba(255,107,0,0.1)' : 'transparent',
                 cursor: 'pointer', fontSize: '0.85rem', color: 'var(--text)',
-                fontFamily: "'Nunito', sans-serif",
+                fontFamily: "var(--font-nunito), sans-serif",
                 fontWeight: themeId === theme.id ? 700 : 400,
                 textAlign: 'left',
                 outline: themeId === theme.id ? '2px solid var(--saffron)' : 'none',
