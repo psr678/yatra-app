@@ -3,6 +3,7 @@ import { Redis } from '@upstash/redis';
 import { createHash } from 'crypto';
 import Groq from 'groq-sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import Cerebras from '@cerebras/cerebras_cloud_sdk';
 
 export const maxDuration = 60;
 
@@ -22,9 +23,12 @@ const ALLOWED_ORIGINS = [
 ];
 
 // ── Provider routing ───────────────────────────────────────────────
-// Gemini: itineraries (potentially 3000-6000 tokens output, needs large context)
-// Groq:   short queries — seasonal tips, safety guides, checklists (fast, low-latency)
-function selectProvider(prompt: string): 'gemini' | 'groq' {
+// Gemini  → long itineraries (large output, needs high quality)
+// Cerebras → short queries: tips, insights, day trips, safety (1M tokens/day free)
+// Groq    → last-resort fallback only (100K tokens/day — preserve it)
+type Provider = 'gemini' | 'cerebras' | 'groq';
+
+function selectProvider(prompt: string): Provider {
   const lower = prompt.toLowerCase();
   const isItinerary =
     lower.includes('itinerary') ||
@@ -33,12 +37,18 @@ function selectProvider(prompt: string): 'gemini' | 'groq' {
     lower.includes('travel plan');
   const daysMatch = prompt.match(/(\d+)\s*days?/i);
   const days = daysMatch ? parseInt(daysMatch[1]) : 0;
-  // Send long itineraries to Gemini; everything else to Groq
   if (isItinerary || days >= 3) return 'gemini';
-  return 'groq';
+  return 'cerebras';
 }
 
-// ── Lazy clients ──────────────────────────────────────────────────
+// Fallback chain per primary provider
+const FALLBACK: Record<Provider, Provider[]> = {
+  gemini:   ['cerebras', 'groq'],
+  cerebras: ['gemini',   'groq'],
+  groq:     ['cerebras', 'gemini'],
+};
+
+// ── Redis ─────────────────────────────────────────────────────────
 let ratelimit: Ratelimit | null = null;
 let redis: Redis | null = null;
 if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
@@ -60,68 +70,76 @@ function isAllowedRequestSource(req: Request): boolean {
   return true;
 }
 
-function errorResponse(msg: string, status = 500) {
-  return new Response(`⚠️ ${msg}`, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
-}
-
 // ── Gemini streaming ──────────────────────────────────────────────
 async function streamGemini(prompt: string, encoder: TextEncoder, onChunk: (b: Uint8Array) => void): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY not configured');
-
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
-    systemInstruction: SYSTEM_PROMPT,
-  });
-
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash', systemInstruction: SYSTEM_PROMPT });
   const result = await model.generateContentStream(prompt);
   let full = '';
   for await (const chunk of result.stream) {
     const text = chunk.text();
-    if (text) {
-      full += text;
-      onChunk(encoder.encode(text));
-    }
+    if (text) { full += text; onChunk(encoder.encode(text)); }
   }
   return full;
 }
 
-// ── Groq streaming ────────────────────────────────────────────────
+// ── Cerebras streaming ────────────────────────────────────────────
+async function streamCerebras(prompt: string, encoder: TextEncoder, onChunk: (b: Uint8Array) => void): Promise<string> {
+  const apiKey = process.env.CEREBRAS_API_KEY;
+  if (!apiKey) throw new Error('CEREBRAS_API_KEY not configured');
+  const client = new Cerebras({ apiKey });
+  const stream = await client.chat.completions.create({
+    model: 'llama-3.3-70b',
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user',   content: prompt },
+    ],
+    stream: true,
+    max_completion_tokens: 8192,
+  });
+  let full = '';
+  for await (const chunk of stream) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const text: string = (chunk as any).choices?.[0]?.delta?.content ?? '';
+    if (text) { full += text; onChunk(encoder.encode(text)); }
+  }
+  return full;
+}
+
+// ── Groq streaming (fallback only) ───────────────────────────────
 async function streamGroq(prompt: string, encoder: TextEncoder, onChunk: (b: Uint8Array) => void): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) throw new Error('GROQ_API_KEY not configured');
-
   const groq = new Groq({ apiKey });
   const stream = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+    model: 'llama-3.1-8b-instant',  // 500K tokens/day — preserve the 70b quota
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: prompt },
+      { role: 'user',   content: prompt },
     ],
     stream: true,
     max_tokens: 8000,
   });
-
   let full = '';
   for await (const chunk of stream) {
     const text = chunk.choices[0]?.delta?.content ?? '';
-    if (text) {
-      full += text;
-      onChunk(encoder.encode(text));
-    }
+    if (text) { full += text; onChunk(encoder.encode(text)); }
   }
   return full;
 }
 
+async function runProvider(provider: Provider, prompt: string, encoder: TextEncoder, onChunk: (b: Uint8Array) => void): Promise<string> {
+  if (provider === 'gemini')   return streamGemini(prompt, encoder, onChunk);
+  if (provider === 'cerebras') return streamCerebras(prompt, encoder, onChunk);
+  return streamGroq(prompt, encoder, onChunk);
+}
+
 // ── Route handler ─────────────────────────────────────────────────
 export async function POST(req: Request) {
-  // 1. Origin check
-  if (!isAllowedRequestSource(req)) {
-    return new Response('Forbidden', { status: 403 });
-  }
+  if (!isAllowedRequestSource(req)) return new Response('Forbidden', { status: 403 });
 
-  // 2. Rate limit
   if (ratelimit) {
     try {
       const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'anonymous';
@@ -130,31 +148,26 @@ export async function POST(req: Request) {
     } catch { /* Redis down — skip */ }
   }
 
-  // 3. Validate body
   let body: unknown;
   try { body = await req.json(); } catch { return new Response('Bad request', { status: 400 }); }
 
   const prompt = body && typeof body === 'object' && !Array.isArray(body)
     ? (body as { prompt?: unknown }).prompt : undefined;
-  if (typeof prompt !== 'string' || prompt.length === 0 || prompt.length > 12000) {
+  if (typeof prompt !== 'string' || prompt.length === 0 || prompt.length > 12000)
     return new Response('Bad request', { status: 400 });
-  }
 
-  // 4. Redis cache
-  const cacheKey = `roamai:v2:${createHash('sha256').update(prompt).digest('hex')}`;
+  // Redis cache
+  const cacheKey = `roamai:v3:${createHash('sha256').update(prompt).digest('hex')}`;
   if (redis) {
     try {
       const cached = await redis.get<string>(cacheKey);
-      if (cached) {
-        return new Response(cached, {
-          headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Cache': 'HIT' },
-        });
-      }
+      if (cached) return new Response(cached, {
+        headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Cache': 'HIT' },
+      });
     } catch { /* Redis down — skip */ }
   }
 
-  // 5. Pick provider and stream
-  const provider = selectProvider(prompt);
+  const primary = selectProvider(prompt);
   const encoder = new TextEncoder();
   let fullResponse = '';
 
@@ -162,37 +175,34 @@ export async function POST(req: Request) {
     new ReadableStream({
       async start(controller) {
         const send = (bytes: Uint8Array) => controller.enqueue(bytes);
-
         let sentBytes = 0;
         const tracked = (bytes: Uint8Array) => { sentBytes += bytes.length; send(bytes); };
 
-        try {
-          if (provider === 'gemini') {
-            fullResponse = await streamGemini(prompt, encoder, tracked);
-          } else {
-            fullResponse = await streamGroq(prompt, encoder, tracked);
-          }
-        } catch {
-          // Only fall back if nothing was sent yet — mid-stream errors can't be recovered cleanly
-          if (sentBytes === 0) {
-            const fallback = provider === 'gemini' ? 'groq' : 'gemini';
-            try {
-              if (fallback === 'gemini') {
-                fullResponse = await streamGemini(prompt, encoder, send);
-              } else {
-                fullResponse = await streamGroq(prompt, encoder, send);
-              }
-            } catch {
+        const chain = [primary, ...FALLBACK[primary]];
+        let succeeded = false;
+
+        for (const provider of chain) {
+          try {
+            fullResponse = await runProvider(provider, prompt, encoder, sentBytes === 0 ? tracked : send);
+            succeeded = true;
+            break;
+          } catch {
+            if (sentBytes > 0) {
+              // Partial content already sent — can't retry cleanly
               controller.enqueue(encoder.encode(
-                "⚠️ Our AI assistants are taking a short break due to high traffic. Please try again in a few minutes."
+                '\n\n---\n⚠️ Response was cut short. Please try again for the full result.'
               ));
+              succeeded = true;
+              break;
             }
-          } else {
-            // Partial response already sent — append a graceful note
-            controller.enqueue(encoder.encode(
-              "\n\n---\n⚠️ Response was cut short due to high traffic. Please try again for the full itinerary."
-            ));
+            // Nothing sent yet — try next provider in chain
           }
+        }
+
+        if (!succeeded) {
+          controller.enqueue(encoder.encode(
+            '⚠️ Our AI assistants are taking a short break due to high traffic. Please try again in a few minutes.'
+          ));
         }
 
         controller.close();
@@ -202,6 +212,6 @@ export async function POST(req: Request) {
         }
       },
     }),
-    { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Provider': provider } }
+    { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Provider': primary } }
   );
 }
