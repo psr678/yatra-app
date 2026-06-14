@@ -13,122 +13,109 @@ interface DestinationsPageProps {
   showToast: (msg: string, type?: 'success' | '') => void;
 }
 
-const filters = [
-  { label: '🌏 All', value: 'all' },
-  { label: '👩 Women-Friendly', value: 'women' },
-  { label: '🧳 Solo', value: 'single' },
-  { label: '❄️ Winter', value: 'winter' },
-  { label: '☀️ Summer', value: 'summer' },
-  { label: '🌧️ Monsoon', value: 'monsoon' },
-  { label: '🏖️ Beach', value: 'beach' },
-  { label: '🙏 Spiritual', value: 'spiritual' },
-  { label: '🧗 Adventure', value: 'adventure' },
-  { label: '🏛️ Heritage', value: 'heritage' },
-  { label: '🌿 Nature', value: 'nature' },
+const FILTERS = [
+  { label: 'All',        value: 'all',       icon: '🌏' },
+  { label: 'Women-Safe', value: 'women',     icon: '👩' },
+  { label: 'Solo',       value: 'single',    icon: '🧳' },
+  { label: 'Beach',      value: 'beach',     icon: '🏖️' },
+  { label: 'Heritage',   value: 'heritage',  icon: '🏛️' },
+  { label: 'Spiritual',  value: 'spiritual', icon: '🙏' },
+  { label: 'Adventure',  value: 'adventure', icon: '🧗' },
+  { label: 'Nature',     value: 'nature',    icon: '🌿' },
+  { label: 'Winter',     value: 'winter',    icon: '❄️' },
+  { label: 'Summer',     value: 'summer',    icon: '☀️' },
+  { label: 'Monsoon',    value: 'monsoon',   icon: '🌧️' },
 ];
+
+const SEASON_META = {
+  winter:  { icon: '❄️', label: 'Winter (Oct–Feb)' },
+  summer:  { icon: '☀️', label: 'Summer (Mar–Jun)' },
+  monsoon: { icon: '🌧️', label: 'Monsoon (Jul–Sep)' },
+};
 
 export default function DestinationsPage({ initialFilter, plannerContext, onPlanTrip, showToast }: DestinationsPageProps) {
   const [currentFilter, setCurrentFilter] = useState(initialFilter || 'all');
 
   const season = getCurrentSeasonKey();
   const seasonInfo = seasonalPicks[season];
+  const meta = SEASON_META[season];
   const upcomingFestivals = getUpcomingFestivals(3);
   const thisMonthFestivals = getThisMonthFestivals();
 
-  const seasonLabel = { winter: '❄️ Winter (Oct–Feb)', summer: '☀️ Summer (Mar–Jun)', monsoon: '🌧️ Monsoon (Jul–Sep)' }[season];
-
-  const filtered = currentFilter === 'all'
-    ? destinations
-    : destinations.filter(d => d.tags.includes(currentFilter));
+  const filtered = currentFilter === 'all' ? destinations : destinations.filter(d => d.tags.includes(currentFilter));
 
   const handlePlanTrip = (name: string) => {
     onPlanTrip(name);
-    showToast(`📍 ${name} selected! Fill in details and generate itinerary.`, 'success');
+    showToast(`📍 ${name} selected! Switch to Plan Trip to generate your itinerary.`, 'success');
   };
 
   return (
     <div>
-      <div className="section-title">🏔️ Explore India</div>
-      <p className="section-sub">Discover beautiful destinations across the country</p>
-
-      {/* ── This Season's Picks ── */}
-      <div className="card" style={{ marginBottom: '24px', background: 'linear-gradient(135deg, var(--cream), #FFF0E0)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-          <span style={{ fontSize: '1.4rem' }}>{season === 'winter' ? '❄️' : season === 'summer' ? '☀️' : '🌧️'}</span>
+      {/* Trending now banner */}
+      <div className="info-banner">
+        <div className="info-banner-row">
+          <div className="info-banner-icon">{meta.icon}</div>
           <div>
-            <div style={{ fontFamily: "var(--font-baloo2), sans-serif", fontWeight: 700, color: 'var(--maroon)', fontSize: '1rem' }}>
-              Now Trending — {seasonLabel}
+            <div className="info-banner-title">Trending Now — {meta.label}</div>
+            <div className="info-banner-sub">{seasonInfo.tip}</div>
+            <div className="info-banner-chips">
+              {seasonInfo.destinations.map(dest => (
+                <button key={dest} className="info-chip" onClick={() => handlePlanTrip(dest)}>
+                  📍 {dest}
+                </button>
+              ))}
             </div>
-            <div style={{ fontSize: '0.82rem', color: '#888' }}>{seasonInfo.tip}</div>
           </div>
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {seasonInfo.destinations.map(dest => (
-            <button
-              key={dest}
-              className="filter-chip active"
-              style={{ fontSize: '0.82rem' }}
-              onClick={() => handlePlanTrip(dest)}
-            >
-              📍 {dest}
-            </button>
-          ))}
         </div>
       </div>
 
-      {/* ── Upcoming Festivals ── */}
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{ fontFamily: "var(--font-baloo2), sans-serif", fontWeight: 700, color: 'var(--maroon)', fontSize: '1rem', marginBottom: '12px' }}>
-          🎉 Upcoming Festivals — Plan Around Them!
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
-          {upcomingFestivals.map(fest => (
-            <div key={fest.name} className="card" style={{ padding: '14px', cursor: 'default' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                <span style={{ fontSize: '1.6rem' }}>{fest.emoji}</span>
-                <div>
-                  <div style={{ fontFamily: "var(--font-baloo2), sans-serif", fontWeight: 700, fontSize: '0.92rem', color: 'var(--dark)' }}>
-                    {fest.name}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--saffron)' }}>
-                    {new Date(2025, fest.month - 1).toLocaleString('en-IN', { month: 'long' })}
+      {/* Upcoming festivals */}
+      {upcomingFestivals.length > 0 && (
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ fontFamily: 'var(--font-baloo2, "Baloo 2"), sans-serif', fontSize: '0.9rem', fontWeight: 700, color: 'var(--navy)', marginBottom: '14px' }}>
+            🎉 Upcoming Festivals — Plan Around Them
+          </div>
+          <div className="festival-grid">
+            {upcomingFestivals.map(fest => (
+              <div key={fest.name} className="festival-card">
+                <div className="festival-top">
+                  <span className="festival-emoji">{fest.emoji}</span>
+                  <div>
+                    <div className="festival-name">{fest.name}</div>
+                    <div className="festival-month">
+                      {new Date(2025, fest.month - 1).toLocaleString('en-IN', { month: 'long' })}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: '8px', lineHeight: 1.5 }}>{fest.desc}</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                {fest.destinations.slice(0, 3).map(d => (
-                  <button
-                    key={d}
-                    onClick={() => handlePlanTrip(d)}
-                    className="dest-tag"
-                    style={{ cursor: 'pointer', border: '1px solid var(--saffron)', color: 'var(--saffron)', background: 'rgba(255,107,0,0.05)' }}
-                  >
-                    📍 {d}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── This month's special ── */}
-      {thisMonthFestivals.length > 0 && (
-        <div className="card" style={{ marginBottom: '24px', borderColor: 'var(--gold)', borderWidth: '2px' }}>
-          <div style={{ fontFamily: "var(--font-baloo2), sans-serif", fontWeight: 700, color: 'var(--maroon)', marginBottom: '8px' }}>
-            🎊 This Month&apos;s Special
-          </div>
-          {thisMonthFestivals.map(fest => (
-            <div key={fest.name} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: '8px' }}>
-              <span style={{ fontSize: '1.8rem' }}>{fest.emoji}</span>
-              <div>
-                <strong>{fest.name}</strong> — {fest.desc}
-                <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
-                  {fest.destinations.map(d => (
-                    <button key={d} onClick={() => handlePlanTrip(d)} className="filter-chip" style={{ fontSize: '0.75rem' }}>
+                <div className="festival-desc">{fest.desc}</div>
+                <div className="festival-dests">
+                  {fest.destinations.slice(0, 3).map(d => (
+                    <button key={d} className="fdest-btn" onClick={() => handlePlanTrip(d)}>
                       📍 {d}
                     </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* This month */}
+      {thisMonthFestivals.length > 0 && (
+        <div className="card" style={{ marginBottom: '28px', borderLeft: '4px solid var(--gold)' }}>
+          <div style={{ fontFamily: 'var(--font-baloo2, "Baloo 2"), sans-serif', fontWeight: 700, fontSize: '0.9rem', color: 'var(--navy)', marginBottom: '14px' }}>
+            🎊 This Month&apos;s Highlights
+          </div>
+          {thisMonthFestivals.map(fest => (
+            <div key={fest.name} style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+              <span style={{ fontSize: '1.8rem', lineHeight: 1, flexShrink: 0 }}>{fest.emoji}</span>
+              <div>
+                <strong style={{ color: 'var(--text)', fontSize: '0.9rem' }}>{fest.name}</strong>
+                <span style={{ color: 'var(--muted)', fontSize: '0.84rem' }}> — {fest.desc}</span>
+                <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+                  {fest.destinations.map(d => (
+                    <button key={d} className="fdest-btn" onClick={() => handlePlanTrip(d)}>📍 {d}</button>
                   ))}
                 </div>
               </div>
@@ -137,33 +124,34 @@ export default function DestinationsPage({ initialFilter, plannerContext, onPlan
         </div>
       )}
 
-      {/* ── Filter + Destination Grid ── */}
-      <div className="filter-bar">
-        <strong style={{ fontSize: '0.85rem', color: 'var(--maroon)' }}>Filter:</strong>
-        {filters.map(f => (
+      {/* Filter bar */}
+      <div className="filter-strip">
+        <span className="filter-label">Filter:</span>
+        {FILTERS.map(f => (
           <button
             key={f.value}
-            className={`filter-chip ${currentFilter === f.value ? 'active' : ''}`}
+            className={`filter-pill ${currentFilter === f.value ? 'active' : ''}`}
             onClick={() => setCurrentFilter(f.value)}
           >
-            {f.label}
+            {f.icon} {f.label}
           </button>
         ))}
       </div>
 
+      {/* Destination grid */}
       <div className="dest-grid">
         {filtered.map(dest => (
           <DestCard key={dest.name} dest={dest} onPlanTrip={handlePlanTrip} />
         ))}
       </div>
 
-      <hr style={{ border: 'none', borderTop: '2px dashed var(--border)', margin: '32px 0' }} />
+      {/* Seasonal guide */}
+      <div style={{ borderTop: '1px solid var(--border)', paddingTop: '36px' }}>
+        <SeasonalGuide plannerContext={plannerContext} showToast={showToast} />
+      </div>
 
-      <SeasonalGuide plannerContext={plannerContext} showToast={showToast} />
-
-      {/* Disclaimer */}
-      <p style={{ fontSize: '0.75rem', color: '#aaa', marginTop: '24px', lineHeight: 1.6, textAlign: 'center' }}>
-        ℹ️ Destination information is for general guidance. Conditions, accessibility and safety may vary. Check official tourism portals and travel advisories before planning.
+      <p style={{ fontSize: '0.72rem', color: 'var(--subtle)', marginTop: '24px', lineHeight: 1.7, textAlign: 'center' }}>
+        ℹ️ Information is for general guidance. Always check official tourism portals and travel advisories before travel.
       </p>
     </div>
   );

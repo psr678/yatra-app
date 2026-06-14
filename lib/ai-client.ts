@@ -10,7 +10,8 @@ export async function callAI(prompt: string, { onChunk }: CallAIOptions): Promis
   });
 
   if (!res.ok) {
-    throw new Error(`API error ${res.status}`);
+    const body = await res.text().catch(() => '');
+    throw new Error(body || `API error ${res.status}`);
   }
 
   const reader = res.body?.getReader();

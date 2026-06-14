@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { buildItineraryPrompt, buildChecklistPrompt, buildSeasonalTipPrompt, buildWomenTipPrompt } from '@/lib/prompts';
+import {
+  buildItineraryPrompt, buildChecklistPrompt, buildSeasonalTipPrompt,
+  buildWomenTipPrompt, buildDayTripsPrompt, buildGetTherePrompt, buildWeatherInsightsPrompt,
+} from '@/lib/prompts';
 import type { PlannerFormData } from '@/types';
 
 const baseFormData: PlannerFormData = {
@@ -39,12 +42,29 @@ describe('buildItineraryPrompt', () => {
     expect(prompt).toContain('women-friendly');
   });
 
-  it('includes all required sections', () => {
+  it('includes core AI sections', () => {
     const prompt = buildItineraryPrompt(baseFormData);
     expect(prompt).toContain('Day-by-Day Itinerary');
-    expect(prompt).toContain('Budget Breakdown');
     expect(prompt).toContain('Local Food Guide');
     expect(prompt).toContain('Where to Stay');
+    expect(prompt).toContain('Tips & Essentials');
+  });
+
+  it('does NOT include sections moved out of main prompt', () => {
+    const prompt = buildItineraryPrompt(baseFormData);
+    // Budget, Day Trips, Getting There are now static/lazy — not in AI prompt
+    expect(prompt).not.toContain('Budget Breakdown');
+    expect(prompt).not.toContain('Nearby Day Trips');
+    expect(prompt).not.toContain('Getting There & Around');
+    // Weather and Emergency Contacts are also removed
+    expect(prompt).not.toContain('Emergency Contacts');
+    expect(prompt).not.toContain('Weather in');
+  });
+
+  it('includes bold/italic formatting instructions', () => {
+    const prompt = buildItineraryPrompt(baseFormData);
+    expect(prompt).toContain('**bold**');
+    expect(prompt).toContain('*italic*');
   });
 
   it('falls back gracefully when from is empty', () => {
@@ -82,5 +102,36 @@ describe('buildWomenTipPrompt', () => {
 
   it('mentions safety', () => {
     expect(buildWomenTipPrompt('Kerala').toLowerCase()).toContain('safety');
+  });
+});
+
+describe('buildDayTripsPrompt', () => {
+  it('includes destination', () => {
+    expect(buildDayTripsPrompt('Goa')).toContain('Goa');
+  });
+  it('asks for nearby destinations', () => {
+    expect(buildDayTripsPrompt('Goa').toLowerCase()).toContain('day trip');
+  });
+});
+
+describe('buildGetTherePrompt', () => {
+  it('includes both from and to', () => {
+    const prompt = buildGetTherePrompt('Goa', 'Mumbai');
+    expect(prompt).toContain('Goa');
+    expect(prompt).toContain('Mumbai');
+  });
+  it('falls back gracefully when from is empty', () => {
+    const prompt = buildGetTherePrompt('Goa', '');
+    expect(prompt).toContain('Goa');
+    expect(prompt).toContain('major Indian cities');
+  });
+});
+
+describe('buildWeatherInsightsPrompt', () => {
+  it('includes destination', () => {
+    expect(buildWeatherInsightsPrompt('Kerala')).toContain('Kerala');
+  });
+  it('requests JSON output', () => {
+    expect(buildWeatherInsightsPrompt('Kerala')).toContain('JSON');
   });
 });

@@ -1,28 +1,46 @@
 'use client';
 
-import { useDarkMode } from '@/hooks/useDarkMode';
-import ThemePicker, { useAppTheme } from '@/components/ThemePicker';
 import CompassLogo from '@/components/CompassLogo';
+import type { TabId } from '@/types';
 
-export default function Nav() {
-  const { isDark, toggle } = useDarkMode();
-  const { themeId, setTheme } = useAppTheme();
+const TABS: { id: TabId; label: string; icon: string }[] = [
+  { id: 'planner',      label: 'Plan Trip',   icon: '✨' },
+  { id: 'itinerary',   label: 'My Trips',    icon: '📅' },
+  { id: 'budget',      label: 'Budget',      icon: '💰' },
+  { id: 'checklist',   label: 'Packing',     icon: '✅' },
+  { id: 'destinations', label: 'Discover',   icon: '🏔️' },
+  { id: 'links',       label: 'Book Now',    icon: '🔖' },
+];
 
+interface NavProps {
+  activeTab: TabId;
+  onTabChange: (tab: TabId) => void;
+}
+
+export default function Nav({ activeTab, onTabChange }: NavProps) {
   return (
-    <nav>
-      <div className="logo">
-        <CompassLogo size={44} />
+    <nav className="top-nav">
+      <div className="nav-logo">
+        <CompassLogo size={36} />
         <div>
-          <div className="logo-text">Roamai</div>
-          <span className="logo-sub">రోమేయ్ · Travel Companion</span>
+          <div className="nav-logo-text">Roamai</div>
+          <span className="nav-logo-tagline">AI Travel Companion · India 🇮🇳</span>
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <ThemePicker themeId={themeId} setTheme={setTheme} />
-        <button className="dark-toggle" onClick={toggle} title="Toggle dark mode">
-          {isDark ? '☀️' : '🌙'} <span>{isDark ? 'Light' : 'Dark'}</span>
-        </button>
+      <div className="nav-divider" />
+
+      <div className="nav-tabs">
+        {TABS.map(tab => (
+          <button
+            key={tab.id}
+            className={`nav-tab ${activeTab === tab.id ? 'active' : ''}`}
+            onClick={() => onTabChange(tab.id)}
+          >
+            <span>{tab.icon}</span>
+            <span>{tab.label}</span>
+          </button>
+        ))}
       </div>
     </nav>
   );

@@ -32,42 +32,19 @@ export function buildItineraryPrompt(data: PlannerFormData): string {
 - Special focus: ${flags || 'general travel'}
 - Interests: ${interests || 'general sightseeing'}
 
-IMPORTANT FORMATTING RULE: For every named place (attraction, restaurant, hotel, market, temple, area), embed a Google Maps hyperlink directly on the place name using this format:
-[Place Name](https://www.google.com/maps/search/Place+Name+${encodeURIComponent(to)}+India)
-Replace spaces in the place name with + in the URL. Always link the name itself, not a separate line.
+FORMATTING RULES — follow these strictly:
+1. Every named place (attraction, restaurant, hotel, market, temple, area): embed a Google Maps link on the name: [Place Name](https://www.google.com/maps/search/Place+Name+${encodeURIComponent(to)}+India)
+2. Use **bold** for: place names, dish names, hotel names, prices, timings, key warnings.
+3. Use *italic* for: local words, neighbourhood vibes, cuisine descriptions.
+4. In the day-by-day section, label each time block as **Morning**, **Afternoon**, **Evening** in bold.
+5. Keep each bullet tight — one sentence max. No padding text.
 
 Please respond with ALL of the following sections:
 
 ---
 
-## 🌤️ Weather in ${to}${month ? ' – ' + month : ''}
-Temperature range, what to wear, weather cautions, and best time of day to sightsee.
-
----
-
 ## 📅 Day-by-Day Itinerary
 For each of the ${numDays} days provide **Morning / Afternoon / Evening** with specific named places (each linked to Google Maps as instructed above).
-
----
-
-## 🗺️ Nearby Day Trips
-List 5–6 destinations within 50–250 km of ${to} that make great day trips or short excursions. For each place:
-- **[Place Name](https://www.google.com/maps/search/Place+Name+${encodeURIComponent(to)}+India)** — ~X km from ${to} (~Y hrs by road/train)
-- How to get there: cab / bus / train with approximate one-way cost
-- Top 2–3 things to see or do there
-- Best suited for: day trip / overnight / weekend getaway
-
----
-
-## 💰 Budget Breakdown
-| Category | Per Person / Day | Total (${people} pax × ${numDays} days) |
-|---|---|---|
-${sameCity
-  ? `List rows for: Accommodation, Food, Local Transport (auto/cab/bus within ${to} only), Activities, Shopping/Misc, then a **Grand Total** row.
-IMPORTANT: Do NOT include any flight or intercity train costs — the traveller is already in ${to} or departing from the same city.`
-  : `List rows for: Accommodation, Food, Intercity Travel (return flights or trains from ${from} to ${to}) + Local Transport, Activities, Shopping/Misc, then a **Grand Total** row.
-Include estimated return flight or train fare from ${from} to ${to} in the transport row.`}
-Base on: ${budgetLabel}.
 
 ---
 
@@ -89,28 +66,10 @@ List 3 specific hotels or guesthouses matching the ${budgetLabel} budget. Link e
 
 ---
 
-## 🚆 Getting There & Around
-How to reach ${to} from ${from || 'major cities'}, and local transport options.
-
----
-
 ## 💡 Tips & Essentials
 ${womenFriendly ? '- Women safety tips for ' + to + '\n' : ''}${senior ? '- Senior citizen notes\n' : ''}- Cultural tips and local customs
 - Must-have apps for this trip (transport, maps, translation, etc.)
-- What to avoid / common tourist mistakes
-
----
-
-## 🆘 Emergency Contacts
-Always include these with exact numbers:
-- **Police:** 100
-- **Ambulance / Medical Emergency:** 108
-- **Fire Brigade:** 101
-- **Women's Helpline:** 1091
-- **Tourist Helpline (India Tourism):** 1800-11-1363 (toll-free)
-- **Railway Enquiry:** 139
-- **Nearest hospital or clinic** near ${to} (name + approximate location)
-- Any **${to}-specific** emergency or local authority number if applicable`;
+- What to avoid / common tourist mistakes`;
 }
 
 export function buildChecklistPrompt(to: string, month: string, age: string, womenFriendly: boolean): string {
@@ -118,7 +77,67 @@ export function buildChecklistPrompt(to: string, month: string, age: string, wom
 }
 
 export function buildSeasonalTipPrompt(to: string, month: string): string {
-  return `Give detailed seasonal travel advice for visiting ${to} in ${month}. Include: weather conditions, what to pack, festivals happening, crowd levels, pros and cons of this time, and whether it's ideal to visit. Be practical and specific.`;
+  return `You are a travel weather expert. Return ONLY a valid JSON object — no markdown, no explanation, no code fences — for visiting ${to} around ${month}.
+
+The JSON must follow this exact shape:
+{
+  "destination": "string",
+  "bestMonths": ["Jan", "Feb"],
+  "avoidMonths": ["Jul", "Aug"],
+  "months": [
+    {
+      "month": "Jan",
+      "icon": "☀️",
+      "condition": "Sunny & Cool",
+      "high": 28,
+      "low": 14,
+      "rain": "Low",
+      "crowd": "High",
+      "rating": 5
+    }
+  ],
+  "tips": [
+    "Tip 1",
+    "Tip 2"
+  ],
+  "packingEssentials": ["Item 1", "Item 2"],
+  "festivals": [
+    { "name": "Festival Name", "month": "Jan", "note": "short description" }
+  ],
+  "verdict": "One sentence summary of the best time to visit."
+}
+
+Rules:
+- "months" must contain all 12 months Jan–Dec in order
+- "icon" must be one of: ☀️ 🌤️ ⛅ 🌦️ 🌧️ ⛈️ 🌨️ 🌫️
+- "condition" is 2–4 words e.g. "Hot & Humid", "Cool & Dry", "Heavy Rain"
+- "high" and "low" are integers in Celsius
+- "rain" is one of: Low / Moderate / High / Very High
+- "crowd" is one of: Low / Moderate / High / Very High
+- "rating" is 1–5 (5 = best time to visit)
+- "tips" must have 4–6 bullet points
+- "packingEssentials" must have 4–6 items
+- Output ONLY the JSON. No other text.`;
+}
+
+// Minimal prompt — ~150 tokens in, ~200 out. Used by the WeatherCard "AI Insights" button.
+export function buildWeatherInsightsPrompt(to: string): string {
+  return `You are a concise Indian travel expert. For the destination "${to}", respond with ONLY valid JSON, no markdown:
+{"verdict":"One sentence on best time to visit and why.","tips":["Tip 1","Tip 2","Tip 3"],"packingEssentials":["Item 1","Item 2","Item 3","Item 4"],"festivals":[{"name":"Festival","month":"Mon","note":"short note"}]}
+Keep each tip under 15 words. List 1–3 key festivals only. Output ONLY the JSON object.`;
+}
+
+export function buildDayTripsPrompt(to: string): string {
+  return `List 5 destinations within 50–250 km of ${to}, India as great day trips. For each:
+## 🗺️ Nearby Day Trips
+- **[Place](https://www.google.com/maps/search/${encodeURIComponent(to)}+India)** — ~X km (~Y hrs by road/train)
+- How to get there + one-way cost
+- Top 2 things to do
+- Best for: day trip / overnight`;
+}
+
+export function buildGetTherePrompt(to: string, from: string): string {
+  return `How to reach ${to} from ${from || 'major Indian cities'}, and local transport options within ${to}. Be concise — 3–4 bullet points per sub-section. Use ## 🚆 Getting There & Around as the heading.`;
 }
 
 export function buildWomenTipPrompt(to: string): string {

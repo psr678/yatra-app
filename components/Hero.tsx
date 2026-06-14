@@ -1,64 +1,69 @@
 'use client';
 
-// 5 directional animation variants — assigned round-robin
-const ANIMS = [
-  'heroFloatUD',
-  'heroFloatLR',
-  'heroFloatDiag1',
-  'heroFloatDiag2',
-  'heroFloatOrbit',
-];
+const CHIPS = ['Goa', 'Rajasthan', 'Kerala', 'Manali', 'Ladakh', 'Varanasi', 'Andaman', 'Coorg', 'Rishikesh', 'Ooty'];
 
-// "Roamai" in 13 Indian scripts — spread across top and bottom of the strip
-const FLOATERS = [
-  // ── top row (left → right) ──
-  { text: 'రోమేయ్', lang: 'te',  style: { top: '8%',    left: '1%'   }, delay: '0s',   dur: '5.2s' },
-  { text: 'रोमाई',  lang: 'hi',  style: { top: '12%',   left: '13%'  }, delay: '1.3s', dur: '6.0s' },
-  { text: 'ரோமை',   lang: 'ta',  style: { top: '6%',    left: '26%'  }, delay: '2.1s', dur: '5.5s' },
-  { text: 'ರೋಮೈ',  lang: 'kn',  style: { top: '14%',   left: '40%'  }, delay: '0.7s', dur: '6.4s' },
-  { text: 'রোমাই',  lang: 'bn',  style: { top: '8%',    left: '54%'  }, delay: '1.9s', dur: '5.8s' },
-  { text: 'റോമൈ',  lang: 'ml',  style: { top: '12%',   left: '68%'  }, delay: '0.4s', dur: '5.1s' },
-  { text: 'رومائی', lang: 'ur',  style: { top: '7%',    right: '1%'  }, delay: '2.6s', dur: '6.7s' },
-  // ── bottom row (left → right) ──
-  { text: 'ਰੋਮਾਈ', lang: 'pa',  style: { bottom: '9%', left: '3%'   }, delay: '1.6s', dur: '5.9s' },
-  { text: 'ରୋମାଇ', lang: 'or',  style: { bottom: '6%', left: '17%'  }, delay: '2.4s', dur: '6.2s' },
-  { text: 'રોમાઈ', lang: 'gu',  style: { bottom: '11%',left: '32%'  }, delay: '0.9s', dur: '5.4s' },
-  { text: 'ৰোমাই', lang: 'as',  style: { bottom: '7%', left: '48%'  }, delay: '1.1s', dur: '6.6s' },
-  { text: 'ꯔꯣꯃꯥꯏ', lang: 'mni', style: { bottom: '12%',left: '64%'  }, delay: '2.8s', dur: '5.7s' },
-  { text: 'ᱨᱳᱢᱟᱭ', lang: 'sat', style: { bottom: '7%', right: '2%'  }, delay: '1.5s', dur: '6.3s' },
-];
+interface HeroProps {
+  destination: string;
+  onDestinationChange: (val: string) => void;
+  onSearch: () => void;
+  onChipClick: (dest: string) => void;
+}
 
-export default function Hero() {
+export default function Hero({ destination, onDestinationChange, onSearch, onChipClick }: HeroProps) {
   return (
     <div className="hero">
-      {FLOATERS.map((f, i) => (
-        <span
-          key={i}
-          aria-hidden="true"
-          lang={f.lang}
-          style={{
-            position: 'absolute',
-            fontSize: '1.05rem',
-            fontWeight: 600,
-            opacity: 0.35,
-            color: '#FFD700',
-            letterSpacing: '0.02em',
-            animation: `${ANIMS[i % ANIMS.length]} ${f.dur} ease-in-out ${f.delay} infinite`,
-            pointerEvents: 'none',
-            userSelect: 'none',
-            textShadow: '0 1px 6px rgba(0,0,0,0.4)',
-            ...f.style,
-          }}
-        >
-          {f.text}
-        </span>
-      ))}
+      <div className="hero-pattern" />
       <div className="hero-inner">
-        <div className="hero-brand">
-          <span className="hero-brand-name">Roamai</span>
-          <span className="hero-brand-telugu">రోమేయ్</span>
+
+        <h1 className="hero-title">
+          Plan Your Perfect<br />
+          <em>Indian Trip</em> with AI
+        </h1>
+        <p className="hero-sub">
+          Get a personalised day-by-day itinerary, budget breakdown, packing list<br />
+          and women-safety tips — all in seconds, completely free.
+        </p>
+
+        <div className="hero-search-card">
+          <div className="hero-search-row">
+            <div className="hero-search-field">
+              <label>Where do you want to go?</label>
+              <input
+                value={destination}
+                onChange={e => onDestinationChange(e.target.value)}
+                placeholder="e.g. Goa, Rajasthan, Manali, Kerala…"
+                onKeyDown={e => e.key === 'Enter' && onSearch()}
+                autoComplete="off"
+              />
+            </div>
+            <button className="btn lg" onClick={onSearch} style={{ flexShrink: 0 }}>
+              ✨ Plan My Trip
+            </button>
+          </div>
+
+          <div className="hero-chips-row">
+            <span className="hero-chips-label">Popular:</span>
+            {CHIPS.map(dest => (
+              <button key={dest} className="hero-chip" onClick={() => onChipClick(dest)}>
+                {dest}
+              </button>
+            ))}
+          </div>
         </div>
-        <p className="hero-tagline">Your AI travel companion for India 🇮🇳</p>
+
+        <div className="hero-stats">
+          {[
+            { num: '500+', label: 'Destinations Covered' },
+            { num: '50K+', label: 'Itineraries Generated' },
+            { num: '100%', label: 'Free to Use' },
+            { num: '< 30s', label: 'Average Response Time' },
+          ].map(s => (
+            <div key={s.label} style={{ textAlign: 'center' }}>
+              <div className="hero-stat-num">{s.num}</div>
+              <div className="hero-stat-label">{s.label}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

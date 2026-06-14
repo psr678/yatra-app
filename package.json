@@ -17,8 +17,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
+    "@google/generative-ai": "^0.24.1",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.3",
+    "groq-sdk": "^1.2.1",
     "marked": "^17.0.4",
     "next": "^16.1.6",
     "react": "^19.0.0",
