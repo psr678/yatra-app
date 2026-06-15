@@ -91,7 +91,7 @@ async function streamCerebras(prompt: string, encoder: TextEncoder, onChunk: (b:
   if (!apiKey) throw new Error('CEREBRAS_API_KEY not configured');
   const client = new Cerebras({ apiKey });
   const stream = await client.chat.completions.create({
-    model: 'llama-3.3-70b',
+    model: 'gpt-oss-120b',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user',   content: prompt },
