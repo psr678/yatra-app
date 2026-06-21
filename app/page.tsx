@@ -72,6 +72,7 @@ export default function Home() {
   const [plannerPreset, setPlannerPreset] = useState<PlannerPreset>(null);
   const [tripSelection, setTripSelection] = useState<TripSelection | null>(null);
   const [heroDestination, setHeroDestination] = useState('');
+  const [exploreInitialTab, setExploreInitialTab] = useState<'destinations' | 'circuits' | 'vibes' | 'quiz'>('destinations');
   const { toast, showToast } = useToast();
   const [plannerContext, setPlannerContext] = useState<{ to?: string; month?: string; age?: string; womenFriendly?: boolean }>({});
 
@@ -115,7 +116,7 @@ export default function Home() {
           onDestinationChange={setHeroDestination}
           onSearch={handleHeroSearch}
           onChipClick={dest => { setHeroDestination(dest); goToPlanner(dest); }}
-          onExplore={() => setActiveTab('destinations')}
+          onExplore={(tab) => { setExploreInitialTab(tab ?? 'destinations'); setActiveTab('destinations'); }}
         />
       )}
 
@@ -171,6 +172,7 @@ export default function Home() {
             <p className="page-sub">Browse destinations, curated circuits, travel vibes — or let us recommend the perfect trip for you</p>
             <DestinationsPage
               initialFilter="all"
+              initialExploreTab={exploreInitialTab}
               plannerContext={plannerContext}
               onPlanTrip={goToPlanner}
               onSelectTrip={sel => { handleTripSelection(sel); }}

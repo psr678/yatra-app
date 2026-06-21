@@ -16,6 +16,7 @@ import TripQuiz from '@/components/planner/TripQuiz';
 
 interface DestinationsPageProps {
   initialFilter?: string;
+  initialExploreTab?: ExploreTab;
   plannerContext: { to?: string; month?: string };
   onPlanTrip: (destination: string) => void;
   onSelectTrip: (sel: TripSelection) => void;
@@ -51,8 +52,8 @@ const EXPLORE_TABS: { id: ExploreTab; label: string; icon: string }[] = [
   { id: 'quiz',         label: 'Recommend Me', icon: '✨' },
 ];
 
-export default function DestinationsPage({ initialFilter, plannerContext, onPlanTrip, onSelectTrip, showToast }: DestinationsPageProps) {
-  const [exploreTab, setExploreTab] = useState<ExploreTab>('destinations');
+export default function DestinationsPage({ initialFilter, initialExploreTab, plannerContext, onPlanTrip, onSelectTrip, showToast }: DestinationsPageProps) {
+  const [exploreTab, setExploreTab] = useState<ExploreTab>(initialExploreTab ?? 'destinations');
   const [destFilter, setDestFilter] = useState(initialFilter || 'all');
   const [circuitSearch, setCircuitSearch] = useState('');
   const [regionFilter, setRegionFilter] = useState<Region | 'all'>('all');

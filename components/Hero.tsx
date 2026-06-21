@@ -2,12 +2,39 @@
 
 const QUICK_CHIPS = ['Goa', 'Rajasthan', 'Kerala', 'Manali', 'Ladakh', 'Varanasi', 'Andaman', 'Coorg'];
 
+const DISCOVER_CARDS = [
+  {
+    icon: '🗺️',
+    title: 'Multi-City Circuits',
+    desc: '25 curated routes across India',
+    tab: 'circuits' as const,
+    color: '#e8f4fd',
+    accent: '#1565c0',
+  },
+  {
+    icon: '🎯',
+    title: 'Travel by Vibe',
+    desc: 'Heritage, beach, adventure & more',
+    tab: 'vibes' as const,
+    color: '#fdf3e8',
+    accent: '#e65100',
+  },
+  {
+    icon: '✨',
+    title: 'Recommend Me',
+    desc: '3 quick questions → perfect trip',
+    tab: 'quiz' as const,
+    color: '#f3e8fd',
+    accent: '#6a1b9a',
+  },
+];
+
 interface HeroProps {
   destination: string;
   onDestinationChange: (val: string) => void;
   onSearch: () => void;
   onChipClick: (dest: string) => void;
-  onExplore: () => void;   // switches to Explore tab
+  onExplore: (tab?: 'circuits' | 'vibes' | 'quiz') => void;
 }
 
 export default function Hero({ destination, onDestinationChange, onSearch, onChipClick, onExplore }: HeroProps) {
@@ -50,14 +77,29 @@ export default function Hero({ destination, onDestinationChange, onSearch, onChi
               </button>
             ))}
           </div>
-        </div>
 
-        {/* Subtle browse link */}
-        <div className="hero-browse-hint">
-          Not sure where to go?{' '}
-          <button className="hero-browse-link" onClick={onExplore}>
-            Browse circuits, vibes &amp; get recommendations →
-          </button>
+          {/* Discovery cards — visible without scrolling, right inside the search card */}
+          <div className="hero-divider">
+            <span>or discover your trip a different way</span>
+          </div>
+
+          <div className="hero-discover-grid">
+            {DISCOVER_CARDS.map(card => (
+              <button
+                key={card.tab}
+                className="hero-discover-card"
+                style={{ background: card.color, '--card-accent': card.accent } as React.CSSProperties}
+                onClick={() => onExplore(card.tab)}
+              >
+                <span className="hdc-icon">{card.icon}</span>
+                <div className="hdc-body">
+                  <div className="hdc-title">{card.title}</div>
+                  <div className="hdc-desc">{card.desc}</div>
+                </div>
+                <span className="hdc-arrow">→</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="hero-stats">

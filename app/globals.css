@@ -98,6 +98,30 @@ img { display: block; max-width: 100%; }
   flex-shrink: 0;
   text-decoration: none;
 }
+.nav-logo-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background .15s;
+  text-align: left;
+}
+.nav-logo-btn:hover { background: rgba(255,255,255,.07); }
+.nav-home-btn {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.85);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
+}
+.nav-home-btn:hover { background: rgba(255,255,255,.2); color: #fff; }
 .nav-logo-text {
   font-family: var(--font-playfair, 'Playfair Display'), serif;
   font-size: 1.35rem;
@@ -200,6 +224,8 @@ img { display: block; max-width: 100%; }
   padding: 22px 24px 24px;
   box-shadow: 0 20px 60px rgba(0,0,0,.3);
   text-align: left;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 .hero-search-row {
   display: flex;
@@ -980,25 +1006,91 @@ img { display: block; max-width: 100%; }
 .toast.success { background: var(--green); }
 
 /* ── HERO BROWSE HINT ────────────────────────────────────────────── */
-.hero-browse-hint {
-  margin-top: 16px;
-  font-size: 0.83rem;
-  color: rgba(255,255,255,.5);
-  text-align: center;
+/* ── HERO DISCOVERY CARDS ───────────────────────────────────────── */
+.hero-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 12px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
-.hero-browse-link {
-  background: none;
-  border: none;
-  color: #FDBA74;
-  font-size: inherit;
-  font-weight: 600;
+.hero-divider::before,
+.hero-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.hero-discover-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.hero-discover-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
   cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  padding: 0;
-  transition: color .15s;
+  text-align: left;
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
-.hero-browse-link:hover { color: #fff; }
+.hero-discover-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,.1);
+  border-color: var(--card-accent, #1565c0);
+}
+.hdc-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.hdc-body {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.hdc-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hdc-desc {
+  font-size: 0.71rem;
+  color: var(--muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hdc-arrow {
+  font-size: 0.9rem;
+  color: var(--card-accent, #1565c0);
+  font-weight: 700;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.hero-discover-card:hover .hdc-arrow { opacity: 1; }
+
+@media (max-width: 600px) {
+  .hero-discover-grid { grid-template-columns: 1fr; }
+  .hdc-desc { white-space: normal; }
+}
 
 /* ── EXPLORE PAGE SUB-TABS ───────────────────────────────────────── */
 .explore-tabs {

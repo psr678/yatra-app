@@ -20,13 +20,14 @@ interface NavProps {
 export default function Nav({ activeTab, onTabChange }: NavProps) {
   return (
     <nav className="top-nav">
-      <div className="nav-logo">
+      {/* Logo is clickable — goes to planner (home) */}
+      <button className="nav-logo nav-logo-btn" onClick={() => onTabChange('planner')} title="Go to home">
         <CompassLogo size={36} />
         <div>
           <div className="nav-logo-text">Roamai</div>
           <span className="nav-logo-tagline">AI Travel Companion · India 🇮🇳</span>
         </div>
-      </div>
+      </button>
 
       <div className="nav-divider" />
 
@@ -42,6 +43,13 @@ export default function Nav({ activeTab, onTabChange }: NavProps) {
           </button>
         ))}
       </div>
+
+      {/* Back to home — visible on every non-planner tab */}
+      {activeTab !== 'planner' && (
+        <button className="nav-home-btn" onClick={() => onTabChange('planner')} title="Back to planner">
+          ← Plan a Trip
+        </button>
+      )}
     </nav>
   );
 }
