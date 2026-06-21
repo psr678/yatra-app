@@ -8,7 +8,7 @@ const TABS: { id: TabId; label: string; icon: string }[] = [
   { id: 'itinerary',   label: 'My Trips',    icon: '📅' },
   { id: 'budget',      label: 'Budget',      icon: '💰' },
   { id: 'checklist',   label: 'Packing',     icon: '✅' },
-  { id: 'destinations', label: 'Discover',   icon: '🏔️' },
+  { id: 'destinations', label: 'Explore',    icon: '🏔️' },
   { id: 'links',       label: 'Book Now',    icon: '🔖' },
 ];
 

@@ -10,7 +10,7 @@ import BudgetPage from '@/components/budget/BudgetPage';
 import ChecklistPage from '@/components/checklist/ChecklistPage';
 import DestinationsPage from '@/components/destinations/DestinationsPage';
 import { useToast } from '@/hooks/useToast';
-import type { TabId } from '@/types';
+import type { TabId, TripSelection } from '@/types';
 
 type PlannerPreset = { destination?: string; travellerType?: string; ageGroup?: string } | null;
 
@@ -70,6 +70,7 @@ const BOOK_NOW_SECTIONS = [
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>('planner');
   const [plannerPreset, setPlannerPreset] = useState<PlannerPreset>(null);
+  const [tripSelection, setTripSelection] = useState<TripSelection | null>(null);
   const [heroDestination, setHeroDestination] = useState('');
   const { toast, showToast } = useToast();
   const [plannerContext, setPlannerContext] = useState<{ to?: string; month?: string; age?: string; womenFriendly?: boolean }>({});
@@ -83,6 +84,14 @@ export default function Home() {
 
   const goToPlanner = (destination: string) => {
     setPlannerPreset({ destination });
+    setTripSelection(null);
+    setActiveTab('planner');
+    scrollToPlanner();
+  };
+
+  const handleTripSelection = (sel: TripSelection) => {
+    setTripSelection(sel);
+    setPlannerPreset(null);
     setActiveTab('planner');
     scrollToPlanner();
   };
@@ -106,6 +115,7 @@ export default function Home() {
           onDestinationChange={setHeroDestination}
           onSearch={handleHeroSearch}
           onChipClick={dest => { setHeroDestination(dest); goToPlanner(dest); }}
+          onExplore={() => setActiveTab('destinations')}
         />
       )}
 
@@ -119,6 +129,8 @@ export default function Home() {
             <PlannerForm
               plannerPreset={plannerPreset}
               onPresetConsumed={() => setPlannerPreset(null)}
+              tripSelection={tripSelection}
+              onTripSelectionConsumed={() => setTripSelection(null)}
               showToast={showToast}
               onContextChange={setPlannerContext}
             />
@@ -152,15 +164,16 @@ export default function Home() {
           </div>
         )}
 
-        {/* Destinations */}
+        {/* Explore — Destinations + Circuits + Vibes + Quiz */}
         {activeTab === 'destinations' && (
           <div>
             <h1 className="page-heading">🏔️ Explore India</h1>
-            <p className="page-sub">Discover beautiful destinations — click any card to start planning your trip</p>
+            <p className="page-sub">Browse destinations, curated circuits, travel vibes — or let us recommend the perfect trip for you</p>
             <DestinationsPage
               initialFilter="all"
               plannerContext={plannerContext}
               onPlanTrip={goToPlanner}
+              onSelectTrip={sel => { handleTripSelection(sel); }}
               showToast={showToast}
             />
           </div>

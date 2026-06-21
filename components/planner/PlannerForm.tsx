@@ -2,17 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { callAI } from '@/lib/ai-client';
-import { buildItineraryPrompt } from '@/lib/prompts';
+import { buildItineraryPrompt, buildCircuitPrompt } from '@/lib/prompts';
 import { useTrips } from '@/hooks/useTrips';
 import { indianCities } from '@/lib/cities-data';
 import AIResultBox from './AIResultBox';
 import WomenSafetyCard from './WomenSafetyCard';
 import type { WeatherData } from './WeatherCard';
-import type { PlannerFormData } from '@/types';
+import type { PlannerFormData, TripSelection } from '@/types';
 
 interface PlannerFormProps {
   plannerPreset: { destination?: string; travellerType?: string; ageGroup?: string } | null;
   onPresetConsumed: () => void;
+  tripSelection: TripSelection | null;
+  onTripSelectionConsumed: () => void;
   showToast: (msg: string, type?: 'success' | '') => void;
   onContextChange?: (ctx: { to?: string; month?: string; age?: string; womenFriendly?: boolean }) => void;
 }
@@ -27,7 +29,7 @@ const TRAVELLER_TYPES = [
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast, onContextChange }: PlannerFormProps) {
+export default function PlannerForm({ plannerPreset, onPresetConsumed, tripSelection, onTripSelectionConsumed, showToast, onContextChange }: PlannerFormProps) {
   const { addTrip } = useTrips();
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -42,6 +44,7 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast
   const [spiritual, setSpiritual] = useState(false);
   const [adventure, setAdventure] = useState(false);
   const [senior, setSenior] = useState(false);
+  const [activeTripSelection, setActiveTripSelection] = useState<TripSelection | null>(null);
 
   const [streamedText, setStreamedText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -52,10 +55,20 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast
   const [showWomenSafety, setShowWomenSafety] = useState(false);
 
   useEffect(() => {
-    if (plannerPreset?.destination) { setTo(plannerPreset.destination); onPresetConsumed(); }
+    if (plannerPreset?.destination) { setTo(plannerPreset.destination); setActiveTripSelection(null); onPresetConsumed(); }
     if (plannerPreset?.travellerType) setTravellerType(plannerPreset.travellerType);
     if (plannerPreset?.ageGroup) setAge(plannerPreset.ageGroup);
   }, [plannerPreset, onPresetConsumed]);
+
+  useEffect(() => {
+    if (!tripSelection) return;
+    setActiveTripSelection(tripSelection);
+    // Pre-fill destination field with the primary city / first city for display
+    const primaryCity = tripSelection.cities?.[0] ?? tripSelection.destination.split(':')[0].trim();
+    setTo(primaryCity);
+    if (tripSelection.suggestedDays) setNumDays(tripSelection.suggestedDays);
+    onTripSelectionConsumed();
+  }, [tripSelection, onTripSelectionConsumed]);
 
   useEffect(() => {
     onContextChange?.({ to, month, age, womenFriendly });
@@ -100,17 +113,33 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast
   };
 
   const handleGenerate = async () => {
-    if (!to) { showToast('⚠️ Please enter a destination'); return; }
+    if (!to && !activeTripSelection) { showToast('⚠️ Please enter a destination'); return; }
     const formData: PlannerFormData = { from, to, numDays, month, budget, age, interests, people, travellerType, womenFriendly, spiritual, adventure, senior };
-    // Structured cache key: ignore free-text interests so same trip config = cache hit
     const flags = [womenFriendly && 'w', spiritual && 's', adventure && 'a', senior && 'sr'].filter(Boolean).join(',');
-    const ck = `itin:${to.toLowerCase().trim()}:${numDays}:${budget}:${month}:${travellerType}:${people}:${flags}`;
 
+    // Circuit/scenario path
+    if (activeTripSelection?.cities && activeTripSelection.cities.length > 1) {
+      const circuitId = activeTripSelection.circuitId ?? activeTripSelection.label.toLowerCase().replace(/\s+/g, '-');
+      const ck = `circuit:${circuitId}:${numDays}:${budget}:${month}:${travellerType}:${people}:${flags}`;
+      const primaryCity = activeTripSelection.cities[0];
+      fetchWeather(primaryCity, month);
+      const prompt = buildCircuitPrompt(formData, activeTripSelection);
+      const fullText = await runAI(prompt, false, ck, 259200);
+      if (fullText) {
+        const tripFlags = [womenFriendly && 'women-friendly', spiritual && 'spiritual', adventure && 'adventure', senior && 'senior-friendly'].filter(Boolean).join(', ');
+        addTrip({ id: crypto.randomUUID(), name: `${activeTripSelection.label} – ${numDays} Days`, destination: activeTripSelection.cities.join(' → '), from, days: numDays, people, month, result: fullText, womenFriendly, flags: tripFlags });
+        showToast('✅ Circuit itinerary saved to My Trips!', 'success');
+      }
+      return;
+    }
+
+    // Single destination path (existing)
+    const ck = `itin:${to.toLowerCase().trim()}:${numDays}:${budget}:${month}:${travellerType}:${people}:${flags}`;
     fetchWeather(to, month);
-    const fullText = await runAI(buildItineraryPrompt(formData), false, ck, 259200); // 3 day TTL
+    const fullText = await runAI(buildItineraryPrompt(formData), false, ck, 259200);
     if (fullText) {
-      const flags = [womenFriendly && 'women-friendly', spiritual && 'spiritual', adventure && 'adventure', senior && 'senior-friendly'].filter(Boolean).join(', ');
-      addTrip({ id: crypto.randomUUID(), name: `${to} – ${numDays} Days`, destination: to, from, days: numDays, people, month, result: fullText, womenFriendly, flags });
+      const tripFlags = [womenFriendly && 'women-friendly', spiritual && 'spiritual', adventure && 'adventure', senior && 'senior-friendly'].filter(Boolean).join(', ');
+      addTrip({ id: crypto.randomUUID(), name: `${to} – ${numDays} Days`, destination: to, from, days: numDays, people, month, result: fullText, womenFriendly, flags: tripFlags });
       showToast('✅ Itinerary saved to My Trips!', 'success');
     }
   };
@@ -134,14 +163,31 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, showToast
               <span className="step-badge">1</span>
               Where &amp; When
             </div>
+
+            {/* Circuit selection pill */}
+            {activeTripSelection && activeTripSelection.cities && activeTripSelection.cities.length > 1 && (
+              <div className="circuit-selection-pill">
+                <span className="circuit-selection-icon">🔄</span>
+                <div className="circuit-selection-body">
+                  <div className="circuit-selection-name">{activeTripSelection.label}</div>
+                  <div className="circuit-selection-route">{activeTripSelection.cities.join(' → ')}</div>
+                </div>
+                <button
+                  className="circuit-selection-clear"
+                  onClick={() => { setActiveTripSelection(null); setTo(''); }}
+                  title="Remove circuit"
+                >✕</button>
+              </div>
+            )}
+
             <div className="form-grid cols-2">
               <div className="field">
                 <label>From (City)</label>
                 <input value={from} onChange={e => setFrom(e.target.value)} placeholder="e.g. Mumbai" list="cities-list" />
               </div>
               <div className="field">
-                <label>Destination *</label>
-                <input value={to} onChange={e => setTo(e.target.value)} placeholder="e.g. Goa, Kerala" list="cities-list" />
+                <label>{activeTripSelection?.cities?.length ?? 0 > 1 ? 'Entry City' : 'Destination *'}</label>
+                <input value={to} onChange={e => { setTo(e.target.value); if (activeTripSelection) setActiveTripSelection(null); }} placeholder="e.g. Goa, Kerala" list="cities-list" />
               </div>
               <div className="field">
                 <label>Days</label>

@@ -1,4 +1,5 @@
-import type { PlannerFormData } from '@/types';
+import type { PlannerFormData, TripSelection } from '@/types';
+import { getCircuitById } from './circuits-data';
 
 const budgetRanges: Record<string, string> = {
   budget: '₹2,000–5,000 per person/day',
@@ -77,47 +78,24 @@ export function buildChecklistPrompt(to: string, month: string, age: string, wom
 }
 
 export function buildSeasonalTipPrompt(to: string, month: string): string {
-  return `You are a travel weather expert. Return ONLY a valid JSON object — no markdown, no explanation, no code fences — for visiting ${to} around ${month}.
+  return `You are a concise Indian travel expert. Give seasonal travel advice for visiting ${to} in ${month}. Format your response in markdown with these sections:
 
-The JSON must follow this exact shape:
-{
-  "destination": "string",
-  "bestMonths": ["Jan", "Feb"],
-  "avoidMonths": ["Jul", "Aug"],
-  "months": [
-    {
-      "month": "Jan",
-      "icon": "☀️",
-      "condition": "Sunny & Cool",
-      "high": 28,
-      "low": 14,
-      "rain": "Low",
-      "crowd": "High",
-      "rating": 5
-    }
-  ],
-  "tips": [
-    "Tip 1",
-    "Tip 2"
-  ],
-  "packingEssentials": ["Item 1", "Item 2"],
-  "festivals": [
-    { "name": "Festival Name", "month": "Jan", "note": "short description" }
-  ],
-  "verdict": "One sentence summary of the best time to visit."
-}
+## 🌤️ Best Time to Visit
+One paragraph — when to go and why.
 
-Rules:
-- "months" must contain all 12 months Jan–Dec in order
-- "icon" must be one of: ☀️ 🌤️ ⛅ 🌦️ 🌧️ ⛈️ 🌨️ 🌫️
-- "condition" is 2–4 words e.g. "Hot & Humid", "Cool & Dry", "Heavy Rain"
-- "high" and "low" are integers in Celsius
-- "rain" is one of: Low / Moderate / High / Very High
-- "crowd" is one of: Low / Moderate / High / Very High
-- "rating" is 1–5 (5 = best time to visit)
-- "tips" must have 4–6 bullet points
-- "packingEssentials" must have 4–6 items
-- Output ONLY the JSON. No other text.`;
+## ✅ Why ${month} Works (or Doesn't)
+2–3 bullet points on what to expect this month specifically.
+
+## 🎒 What to Pack
+4–5 essential items as a bullet list.
+
+## 🎉 Festivals & Events
+1–3 relevant festivals or events near this time, if any.
+
+## 💡 Local Tips
+2–3 quick destination-specific tips.
+
+Keep each bullet under 15 words. Be specific to ${to}, not generic India advice.`;
 }
 
 // Minimal prompt — ~150 tokens in, ~200 out. Used by the WeatherCard "AI Insights" button.
@@ -138,6 +116,91 @@ export function buildDayTripsPrompt(to: string): string {
 
 export function buildGetTherePrompt(to: string, from: string): string {
   return `How to reach ${to} from ${from || 'major Indian cities'}, and local transport options within ${to}. Be concise — 3–4 bullet points per sub-section. Use ## 🚆 Getting There & Around as the heading.`;
+}
+
+/**
+ * Multi-city circuit prompt — replaces the single-city prompt when a circuit is selected.
+ * Allocates days across cities proportionally and includes travel days between them.
+ */
+export function buildCircuitPrompt(data: PlannerFormData, selection: TripSelection): string {
+  const circuit = selection.circuitId ? getCircuitById(selection.circuitId) : null;
+  const cities = selection.cities ?? [data.to];
+  const { numDays, month, budget, age, interests, people, travellerType, womenFriendly, spiritual, adventure, senior } = data;
+
+  const flags = [
+    womenFriendly ? 'women-friendly' : '',
+    spiritual ? 'spiritual focus' : '',
+    adventure ? 'adventure activities' : '',
+    senior ? 'senior-citizen friendly' : '',
+  ].filter(Boolean).join(', ');
+
+  const budgetLabel = budgetRanges[budget] || 'moderate (₹5,000–15,000 per person/day)';
+
+  // Distribute days across cities (first and last get slightly more)
+  const daysPerCity = distributeDays(numDays, cities.length);
+
+  const citySchedule = cities.map((city, i) => `  - ${city}: ${daysPerCity[i]} day${daysPerCity[i] > 1 ? 's' : ''}`).join('\n');
+
+  return `Create a comprehensive ${numDays}-day MULTI-CITY travel circuit for ${people} ${people === 1 ? 'person' : 'people'} (${travellerType || 'travellers'})${month ? ' in ' + month : ''}.
+
+**Circuit: ${circuit?.name ?? selection.label}**
+**Route:** ${cities.join(' → ')}
+
+**Day allocation:**
+${citySchedule}
+
+**Trip Details:**
+- Travellers: ${people} ${people === 1 ? 'person' : 'people'} (${travellerType || 'group'})
+- Budget: ${budgetLabel}
+- Age Group: ${age || 'adults'}
+- Special focus: ${flags || 'general travel'}
+- Interests: ${interests || 'general sightseeing'}
+
+FORMATTING RULES — follow these strictly:
+1. Every named place: embed a Google Maps link: [Place Name](https://www.google.com/maps/search/Place+Name+India)
+2. Use **bold** for: place names, dish names, hotel names, prices, timings, key warnings.
+3. Use *italic* for: local words, neighbourhood vibes, cuisine descriptions.
+4. In the day-by-day section, label each time block as **Morning**, **Afternoon**, **Evening** in bold.
+5. Include a **Travel Day** entry on the day you move between cities (how to get there, duration, cost).
+6. Keep each bullet tight — one sentence max.
+
+Please respond with ALL of the following sections:
+
+---
+
+## 📅 Day-by-Day Circuit Itinerary
+Organise strictly by city. For each city block, show a **## 🏙️ [City Name]** heading, then day-by-day with **Morning / Afternoon / Evening**. Include one **🚌 Travel to [Next City]** day between each city showing how to get there and estimated cost.
+
+---
+
+## 🍽️ Food Highlights by City
+For each city in the circuit, list 3 must-try dishes or restaurants.
+
+---
+
+## 🏨 Where to Stay
+For each city, suggest 1–2 hotels matching the ${budgetLabel} budget with price per night estimate.
+
+---
+
+## 💡 Circuit Tips
+- Best way to book intercity transport in advance
+- Packing tips for this specific circuit
+- Common mistakes travellers make on this route
+${womenFriendly ? '- Women safety notes for each city\n' : ''}${senior ? '- Senior citizen accessibility notes\n' : ''}`;
+}
+
+function distributeDays(total: number, cities: number): number[] {
+  if (cities === 1) return [total];
+  // Reserve 1 travel day between each city
+  const travelDays = cities - 1;
+  const sightseeingDays = Math.max(total - travelDays, cities);
+  const base = Math.floor(sightseeingDays / cities);
+  const extra = sightseeingDays % cities;
+  return Array.from({ length: cities }, (_, i) => {
+    const sight = base + (i === 0 || i === cities - 1 ? Math.ceil(extra / 2) : 0);
+    return sight + (i < cities - 1 ? 1 : 0); // add travel day except last city
+  });
 }
 
 export function buildWomenTipPrompt(to: string): string {

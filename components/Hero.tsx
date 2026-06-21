@@ -1,15 +1,16 @@
 'use client';
 
-const CHIPS = ['Goa', 'Rajasthan', 'Kerala', 'Manali', 'Ladakh', 'Varanasi', 'Andaman', 'Coorg', 'Rishikesh', 'Ooty'];
+const QUICK_CHIPS = ['Goa', 'Rajasthan', 'Kerala', 'Manali', 'Ladakh', 'Varanasi', 'Andaman', 'Coorg'];
 
 interface HeroProps {
   destination: string;
   onDestinationChange: (val: string) => void;
   onSearch: () => void;
   onChipClick: (dest: string) => void;
+  onExplore: () => void;   // switches to Explore tab
 }
 
-export default function Hero({ destination, onDestinationChange, onSearch, onChipClick }: HeroProps) {
+export default function Hero({ destination, onDestinationChange, onSearch, onChipClick, onExplore }: HeroProps) {
   return (
     <div className="hero">
       <div className="hero-pattern" />
@@ -43,7 +44,7 @@ export default function Hero({ destination, onDestinationChange, onSearch, onChi
 
           <div className="hero-chips-row">
             <span className="hero-chips-label">Popular:</span>
-            {CHIPS.map(dest => (
+            {QUICK_CHIPS.map(dest => (
               <button key={dest} className="hero-chip" onClick={() => onChipClick(dest)}>
                 {dest}
               </button>
@@ -51,12 +52,20 @@ export default function Hero({ destination, onDestinationChange, onSearch, onChi
           </div>
         </div>
 
+        {/* Subtle browse link */}
+        <div className="hero-browse-hint">
+          Not sure where to go?{' '}
+          <button className="hero-browse-link" onClick={onExplore}>
+            Browse circuits, vibes &amp; get recommendations →
+          </button>
+        </div>
+
         <div className="hero-stats">
           {[
-            { num: '500+', label: 'Destinations Covered' },
-            { num: '50K+', label: 'Itineraries Generated' },
+            { num: '25+', label: 'Curated Circuits' },
+            { num: '500+', label: 'Destinations' },
             { num: '100%', label: 'Free to Use' },
-            { num: '< 30s', label: 'Average Response Time' },
+            { num: '< 30s', label: 'Avg Response Time' },
           ].map(s => (
             <div key={s.label} style={{ textAlign: 'center' }}>
               <div className="hero-stat-num">{s.num}</div>
@@ -64,6 +73,7 @@ export default function Hero({ destination, onDestinationChange, onSearch, onChi
             </div>
           ))}
         </div>
+
       </div>
     </div>
   );

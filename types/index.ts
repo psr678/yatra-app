@@ -1,5 +1,21 @@
 export type TabId = 'planner' | 'itinerary' | 'budget' | 'checklist' | 'destinations' | 'links';
 
+export type PlannerMode = 'destination' | 'circuit' | 'scenario' | 'quiz';
+
+export interface TripSelection {
+  mode: PlannerMode;
+  /** Destination string fed to the AI prompt */
+  destination: string;
+  /** Human-readable label shown in the form pill */
+  label: string;
+  /** Suggested days to pre-fill */
+  suggestedDays?: number;
+  /** Circuit id when mode==='circuit' */
+  circuitId?: string;
+  /** Ordered city list for circuit mode */
+  cities?: string[];
+}
+
 export interface Trip {
   id: string;
   name: string;
