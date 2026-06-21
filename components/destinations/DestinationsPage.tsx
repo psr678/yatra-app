@@ -18,7 +18,7 @@ interface DestinationsPageProps {
   initialFilter?: string;
   initialExploreTab?: ExploreTab;
   plannerContext: { to?: string; month?: string };
-  onPlanTrip: (destination: string) => void;
+  onPlanTrip: (destination: string, month?: string) => void;
   onSelectTrip: (sel: TripSelection) => void;
   showToast: (msg: string, type?: 'success' | '') => void;
 }
@@ -59,6 +59,9 @@ export default function DestinationsPage({ initialFilter, initialExploreTab, pla
   const [regionFilter, setRegionFilter] = useState<Region | 'all'>('all');
   const [showQuizModal, setShowQuizModal] = useState(false);
 
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthName = (n: number) => MONTH_NAMES[n - 1] ?? '';
+
   const season = getCurrentSeasonKey();
   const seasonInfo = seasonalPicks[season];
   const meta = SEASON_META[season];
@@ -84,8 +87,8 @@ export default function DestinationsPage({ initialFilter, initialExploreTab, pla
     return list;
   }, [regionFilter, circuitSearch]);
 
-  const handlePlanTrip = (name: string) => {
-    onPlanTrip(name);
+  const handlePlanTrip = (name: string, month?: string) => {
+    onPlanTrip(name, month);
     showToast(`📍 ${name} selected! Switch to Plan Trip to generate your itinerary.`, 'success');
   };
 
@@ -158,7 +161,7 @@ export default function DestinationsPage({ initialFilter, initialExploreTab, pla
                     <div className="festival-desc">{fest.desc}</div>
                     <div className="festival-dests">
                       {fest.destinations.slice(0, 3).map(d => (
-                        <button key={d} className="fdest-btn" onClick={() => handlePlanTrip(d)}>
+                        <button key={d} className="fdest-btn" onClick={() => handlePlanTrip(d, monthName(fest.month))}>
                           📍 {d}
                         </button>
                       ))}
@@ -182,7 +185,7 @@ export default function DestinationsPage({ initialFilter, initialExploreTab, pla
                     <span style={{ color: 'var(--muted)', fontSize: '0.84rem' }}> — {fest.desc}</span>
                     <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
                       {fest.destinations.map(d => (
-                        <button key={d} className="fdest-btn" onClick={() => handlePlanTrip(d)}>📍 {d}</button>
+                        <button key={d} className="fdest-btn" onClick={() => handlePlanTrip(d, monthName(fest.month))}>📍 {d}</button>
                       ))}
                     </div>
                   </div>
@@ -215,7 +218,7 @@ export default function DestinationsPage({ initialFilter, initialExploreTab, pla
                         <div style={{ color: 'var(--muted)', fontSize: '0.83rem', marginBottom: '6px' }}>{formatEventDates(event)} · {event.description}</div>
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                           {event.destinations.slice(0, 3).map(d => (
-                            <button key={d} className="fdest-btn" onClick={() => handlePlanTrip(d)}>📍 {d}</button>
+                            <button key={d} className="fdest-btn" onClick={() => handlePlanTrip(d, new Date(event.startDate).toLocaleString('en-IN', { month: 'long' }))}>📍 {d}</button>
                           ))}
                         </div>
                       </div>
@@ -242,7 +245,7 @@ export default function DestinationsPage({ initialFilter, initialExploreTab, pla
                       <div className="festival-desc">{event.description.slice(0, 120)}{event.description.length > 120 ? '…' : ''}</div>
                       <div className="festival-dests">
                         {event.destinations.slice(0, 3).map(d => (
-                          <button key={d} className="fdest-btn" onClick={() => handlePlanTrip(d)}>
+                          <button key={d} className="fdest-btn" onClick={() => handlePlanTrip(d, new Date(event.startDate).toLocaleString('en-IN', { month: 'long' }))}>
                             📍 {d}
                           </button>
                         ))}
@@ -277,7 +280,7 @@ export default function DestinationsPage({ initialFilter, initialExploreTab, pla
                       <div className="festival-desc">{escape.tagline}</div>
                       <div className="festival-dests" style={{ flexWrap: 'wrap', gap: '6px' }}>
                         {escape.escapes.slice(0, 4).map(e => (
-                          <button key={e.destination} className="fdest-btn" onClick={() => handlePlanTrip(e.destination)}
+                          <button key={e.destination} className="fdest-btn" onClick={() => handlePlanTrip(e.destination, monthName(escape.month))}
                             title={`${e.duration} from ${e.from} — ${e.why}`}>
                             📍 {e.destination}
                           </button>

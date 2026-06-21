@@ -11,7 +11,7 @@ import type { WeatherData } from './WeatherCard';
 import type { PlannerFormData, TripSelection } from '@/types';
 
 interface PlannerFormProps {
-  plannerPreset: { destination?: string; travellerType?: string; ageGroup?: string } | null;
+  plannerPreset: { destination?: string; travellerType?: string; ageGroup?: string; month?: string } | null;
   onPresetConsumed: () => void;
   tripSelection: TripSelection | null;
   onTripSelectionConsumed: () => void;
@@ -58,6 +58,7 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, tripSelec
     if (plannerPreset?.destination) { setTo(plannerPreset.destination); setActiveTripSelection(null); onPresetConsumed(); }
     if (plannerPreset?.travellerType) setTravellerType(plannerPreset.travellerType);
     if (plannerPreset?.ageGroup) setAge(plannerPreset.ageGroup);
+    if (plannerPreset?.month) setMonth(plannerPreset.month);
   }, [plannerPreset, onPresetConsumed]);
 
   useEffect(() => {

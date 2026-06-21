@@ -19,6 +19,7 @@ interface NavProps {
 
 export default function Nav({ activeTab, onTabChange }: NavProps) {
   return (
+    <>
     <nav className="top-nav">
       {/* Logo is clickable — goes to planner (home) */}
       <button className="nav-logo nav-logo-btn" onClick={() => onTabChange('planner')} title="Go to home">
@@ -51,5 +52,20 @@ export default function Nav({ activeTab, onTabChange }: NavProps) {
         </button>
       )}
     </nav>
+
+    {/* Mobile bottom nav — replaces top tab row on small screens */}
+    <div className="bottom-nav" role="navigation" aria-label="Main navigation">
+      {TABS.map(tab => (
+        <button
+          key={tab.id}
+          className={`bottom-nav-btn${activeTab === tab.id ? ' active' : ''}`}
+          onClick={() => onTabChange(tab.id)}
+        >
+          <span className="bn-icon">{tab.icon}</span>
+          <span>{tab.label}</span>
+        </button>
+      ))}
+    </div>
+    </>
   );
 }

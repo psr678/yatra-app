@@ -34,7 +34,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'Roamai – AI Travel Companion for India | Itinerary, Budget & Packing',
   description: 'Roamai (రోమేయ్) — roam around freely. Your AI-powered travel companion for Indian domestic travel. Get personalised itineraries, budget tracking, packing checklists, women-friendly trip flags, seasonal recommendations and more. Free to use!',
-  keywords: 'roamai, Indian travel planner, domestic travel India, AI itinerary India, free trip planner India, travel itinerary generator India, budget travel India, women solo travel India safe, Rajasthan trip planner, Kerala backwater travel, Goa trip planner, Himachal Pradesh travel, Ladakh trip planner, Varanasi travel guide, travel budget tracker rupees, packing checklist India, best time to visit India by season, senior citizen travel India, family trip India, solo travel India',
+  keywords: 'roamai, Indian travel planner, domestic travel India, AI itinerary India, free trip planner India, travel itinerary generator India, budget travel India, women solo travel India safe, Rajasthan trip planner, Kerala backwater travel, Goa trip planner, Himachal Pradesh travel, Ladakh trip planner, Varanasi travel guide, travel budget tracker rupees, packing checklist India, best time to visit India by season, senior citizen travel India, family trip India, solo travel India, Golden Triangle circuit India, multi-city trip India, India travel circuits, weekend getaways India, long weekend trips India, Kumbh Mela travel, Pushkaram travel, Indian festival travel, hill station India summer, travel vibe India, best Indian circuits',
   authors: [{ name: 'Roamai – AI Travel Companion for India' }],
   robots: 'index, follow',
   metadataBase: new URL('https://roamai.in'),
@@ -68,6 +68,11 @@ const jsonLd = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
   featureList: [
     'AI Trip Itinerary Generator',
+    'Multi-City Circuit Planner',
+    'Travel Vibe & Scenario Selector',
+    'Trip Recommendation Quiz',
+    'Major Events & Festival Planner',
+    'Long Weekend Escape Suggestions',
     'Budget Tracker in INR',
     'Packing Checklist',
     'Women-Friendly Trip Planning',

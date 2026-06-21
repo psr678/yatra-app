@@ -12,7 +12,7 @@ import DestinationsPage from '@/components/destinations/DestinationsPage';
 import { useToast } from '@/hooks/useToast';
 import type { TabId, TripSelection } from '@/types';
 
-type PlannerPreset = { destination?: string; travellerType?: string; ageGroup?: string } | null;
+type PlannerPreset = { destination?: string; travellerType?: string; ageGroup?: string; month?: string } | null;
 
 const BOOK_NOW_SECTIONS = [
   {
@@ -83,8 +83,8 @@ export default function Home() {
     }, 80);
   };
 
-  const goToPlanner = (destination: string) => {
-    setPlannerPreset({ destination });
+  const goToPlanner = (destination: string, month?: string) => {
+    setPlannerPreset({ destination, month });
     setTripSelection(null);
     setActiveTab('planner');
     scrollToPlanner();
@@ -174,7 +174,7 @@ export default function Home() {
               initialFilter="all"
               initialExploreTab={exploreInitialTab}
               plannerContext={plannerContext}
-              onPlanTrip={goToPlanner}
+              onPlanTrip={(dest, month) => goToPlanner(dest, month)}
               onSelectTrip={sel => { handleTripSelection(sel); }}
               showToast={showToast}
             />
