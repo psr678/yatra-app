@@ -26,6 +26,11 @@ export function buildItineraryPrompt(data: PlannerFormData): string {
 
   return `Create a comprehensive ${numDays}-day travel plan for ${people} ${people === 1 ? 'person' : 'people'} (${travellerType || 'travellers'}) going from ${from || 'India'} to ${to}${month ? ' in ' + month : ''}.
 
+⚠️ HARD CONSTRAINTS — non-negotiable:
+- Generate EXACTLY ${numDays} days. Not more, not fewer.
+- Stay in ${to} and immediate surroundings only. Do NOT add extra cities, extensions, or side trips beyond the requested ${numDays} days.
+- Day count starts at Day 1 and ends at Day ${numDays}.
+
 **Trip Details:**
 - Travellers: ${people} ${people === 1 ? 'person' : 'people'} (${travellerType || 'group'})
 - Budget: ${budgetLabel}
@@ -45,7 +50,7 @@ Please respond with ALL of the following sections:
 ---
 
 ## 📅 Day-by-Day Itinerary
-For each of the ${numDays} days provide **Morning / Afternoon / Evening** with specific named places (each linked to Google Maps as instructed above).
+For each of the ${numDays} days (Day 1 through Day ${numDays} — exactly ${numDays} days total) provide **Morning / Afternoon / Evening** with specific named places (each linked to Google Maps as instructed above).
 
 ---
 

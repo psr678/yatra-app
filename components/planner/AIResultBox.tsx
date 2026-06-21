@@ -54,14 +54,24 @@ function parseSections(text: string): { preamble: string; sections: Section[] } 
   return { preamble, sections };
 }
 
-function parseDays(content: string): DayChunk[] {
+function stripInlineMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    .replace(/_(.+?)_/g, '$1')
+    .replace(/`(.+?)`/g, '$1');
+}
+
+function parseDays(content: string, maxDays?: number): DayChunk[] {
   const lines = content.split('\n');
   const starts: number[] = [];
   lines.forEach((line, i) => { if (/^#{1,3}\s*.*\bDay\s+\d+\b/i.test(line)) starts.push(i); });
   if (starts.length < 2) return [];
-  return starts.map((start, i) => ({
-    title: lines[start].replace(/^#+\s*/, '').trim(),
-    body: lines.slice(start + 1, i < starts.length - 1 ? starts[i + 1] : lines.length).join('\n').trim(),
+  const capped = maxDays ? starts.slice(0, maxDays) : starts;
+  return capped.map((start, i) => ({
+    title: stripInlineMarkdown(lines[start].replace(/^#+\s*/, '').trim()),
+    body: lines.slice(start + 1, i < capped.length - 1 ? capped[i + 1] : starts[capped.length] ?? lines.length).join('\n').trim(),
   }));
 }
 
@@ -130,7 +140,7 @@ export default function AIResultBox({
 
   const isDaySection = activeSection && /itinerary|day.by.day/i.test(activeSection.title);
   const days: DayChunk[] = useMemo(
-    () => (isDaySection ? parseDays(activeSection!.content) : []),
+    () => (isDaySection ? parseDays(activeSection!.content, numDays) : []),
     [activeSection, isDaySection]
   );
   const useDayCollapse = numDays > 4 && days.length > 1;

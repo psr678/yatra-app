@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { callAI } from '@/lib/ai-client';
 import { buildItineraryPrompt, buildCircuitPrompt } from '@/lib/prompts';
 import { useTrips } from '@/hooks/useTrips';
@@ -54,26 +54,35 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, tripSelec
   const [selectedMonth, setSelectedMonth] = useState('');
   const [showWomenSafety, setShowWomenSafety] = useState(false);
 
+  // Use refs for callbacks to avoid triggering effects when parent re-renders
+  const onPresetConsumedRef = useRef(onPresetConsumed);
+  const onTripSelectionConsumedRef = useRef(onTripSelectionConsumed);
+  const onContextChangeRef = useRef(onContextChange);
+  onPresetConsumedRef.current = onPresetConsumed;
+  onTripSelectionConsumedRef.current = onTripSelectionConsumed;
+  onContextChangeRef.current = onContextChange;
+
   useEffect(() => {
-    if (plannerPreset?.destination) { setTo(plannerPreset.destination); setActiveTripSelection(null); onPresetConsumed(); }
-    if (plannerPreset?.travellerType) setTravellerType(plannerPreset.travellerType);
-    if (plannerPreset?.ageGroup) setAge(plannerPreset.ageGroup);
-    if (plannerPreset?.month) setMonth(plannerPreset.month);
-  }, [plannerPreset, onPresetConsumed]);
+    if (!plannerPreset) return;
+    if (plannerPreset.destination) { setTo(plannerPreset.destination); setActiveTripSelection(null); }
+    if (plannerPreset.travellerType) setTravellerType(plannerPreset.travellerType);
+    if (plannerPreset.ageGroup) setAge(plannerPreset.ageGroup);
+    if (plannerPreset.month) setMonth(plannerPreset.month);
+    onPresetConsumedRef.current();
+  }, [plannerPreset]);
 
   useEffect(() => {
     if (!tripSelection) return;
     setActiveTripSelection(tripSelection);
-    // Pre-fill destination field with the primary city / first city for display
     const primaryCity = tripSelection.cities?.[0] ?? tripSelection.destination.split(':')[0].trim();
     setTo(primaryCity);
     if (tripSelection.suggestedDays) setNumDays(tripSelection.suggestedDays);
-    onTripSelectionConsumed();
-  }, [tripSelection, onTripSelectionConsumed]);
+    onTripSelectionConsumedRef.current();
+  }, [tripSelection]);
 
   useEffect(() => {
-    onContextChange?.({ to, month, age, womenFriendly });
-  }, [to, month, age, womenFriendly, onContextChange]);
+    onContextChangeRef.current?.({ to, month, age, womenFriendly });
+  }, [to, month, age, womenFriendly]);
 
   const fetchWeather = async (dest: string, travelMonth: string) => {
     setWeatherData(null);
@@ -101,7 +110,6 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, tripSelec
         onChunk: chunk => {
           fullText += chunk;
           setStreamedText(fullText);
-          setIsLoading(false);
         },
       });
       setIsLoading(false);
@@ -115,6 +123,7 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, tripSelec
 
   const handleGenerate = async () => {
     if (!to && !activeTripSelection) { showToast('⚠️ Please enter a destination'); return; }
+    if (activeTripSelection && !to) { showToast('⚠️ Please enter the entry city for this circuit'); return; }
     const formData: PlannerFormData = { from, to, numDays, month, budget, age, interests, people, travellerType, womenFriendly, spiritual, adventure, senior };
     const flags = [womenFriendly && 'w', spiritual && 's', adventure && 'a', senior && 'sr'].filter(Boolean).join(',');
 
@@ -183,11 +192,11 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, tripSelec
 
             <div className="form-grid cols-2">
               <div className="field">
-                <label>From (City)</label>
+                <label>From (City) <span style={{ textTransform: 'none', fontSize: '0.72rem', fontWeight: 400, color: 'var(--subtle)' }}>(optional)</span></label>
                 <input value={from} onChange={e => setFrom(e.target.value)} placeholder="e.g. Mumbai" list="cities-list" />
               </div>
               <div className="field">
-                <label>{activeTripSelection?.cities?.length ?? 0 > 1 ? 'Entry City' : 'Destination *'}</label>
+                <label>{(activeTripSelection?.cities?.length ?? 0) > 1 ? 'Entry City *' : 'Destination *'}</label>
                 <input value={to} onChange={e => { setTo(e.target.value); if (activeTripSelection) setActiveTripSelection(null); }} placeholder="e.g. Goa, Kerala" list="cities-list" />
               </div>
               <div className="field">
