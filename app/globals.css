@@ -87,7 +87,7 @@ img { display: block; max-width: 100%; }
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 0 28px;
+  padding: 0 clamp(16px, 3vw, 48px);
   height: 60px;
   box-shadow: 0 2px 12px rgba(0,0,0,.25);
 }
@@ -143,9 +143,12 @@ img { display: block; max-width: 100%; }
 /* ── HERO ────────────────────────────────────────────────────────── */
 .hero {
   background: linear-gradient(140deg, #0A1628 0%, var(--navy) 55%, #1A4A99 100%);
-  padding: 60px 28px 72px;
+  padding: clamp(48px, 8vh, 96px) clamp(20px, 4vw, 60px);
   position: relative;
   overflow: hidden;
+  min-height: calc(100svh - 60px);
+  display: flex;
+  align-items: center;
 }
 .hero-pattern {
   position: absolute;
@@ -157,7 +160,8 @@ img { display: block; max-width: 100%; }
 .hero-inner {
   position: relative;
   z-index: 1;
-  max-width: 820px;
+  max-width: min(760px, 100%);
+  width: 100%;
   margin: 0 auto;
   text-align: center;
 }
@@ -263,9 +267,9 @@ img { display: block; max-width: 100%; }
 
 /* ── PAGE CONTENT ────────────────────────────────────────────────── */
 .page-content {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 36px 28px 60px;
+  padding: clamp(28px, 4vw, 48px) clamp(20px, 4vw, 48px) 72px;
 }
 
 /* ── HEADINGS ────────────────────────────────────────────────────── */
@@ -370,8 +374,8 @@ img { display: block; max-width: 100%; }
 /* ── PLANNER LAYOUT ──────────────────────────────────────────────── */
 .planner-layout {
   display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 24px;
+  grid-template-columns: clamp(320px, 28%, 420px) 1fr;
+  gap: clamp(16px, 2vw, 28px);
   align-items: start;
 }
 .planner-form-col { display: flex; flex-direction: column; gap: 14px; }
@@ -996,7 +1000,7 @@ img { display: block; max-width: 100%; }
 }
 @media (max-width: 600px) {
   .top-nav { padding: 0 14px; }
-  .hero { padding: 36px 16px 52px; }
+  .hero { padding: 36px 16px 52px; min-height: auto; }
   .page-content { padding: 20px 16px 48px; }
   .budget-stats { grid-template-columns: 1fr; }
   .form-grid.cols-2,.form-grid.cols-3,.form-grid.cols-4 { grid-template-columns: 1fr; }
