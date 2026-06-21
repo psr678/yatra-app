@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { callAI } from '@/lib/ai-client';
 import { buildItineraryPrompt, buildCircuitPrompt } from '@/lib/prompts';
 import { useTrips } from '@/hooks/useTrips';
@@ -54,22 +54,14 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, tripSelec
   const [selectedMonth, setSelectedMonth] = useState('');
   const [showWomenSafety, setShowWomenSafety] = useState(false);
 
-  // Use refs for callbacks to avoid triggering effects when parent re-renders
-  const onPresetConsumedRef = useRef(onPresetConsumed);
-  const onTripSelectionConsumedRef = useRef(onTripSelectionConsumed);
-  const onContextChangeRef = useRef(onContextChange);
-  onPresetConsumedRef.current = onPresetConsumed;
-  onTripSelectionConsumedRef.current = onTripSelectionConsumed;
-  onContextChangeRef.current = onContextChange;
-
   useEffect(() => {
     if (!plannerPreset) return;
     if (plannerPreset.destination) { setTo(plannerPreset.destination); setActiveTripSelection(null); }
     if (plannerPreset.travellerType) setTravellerType(plannerPreset.travellerType);
     if (plannerPreset.ageGroup) setAge(plannerPreset.ageGroup);
     if (plannerPreset.month) setMonth(plannerPreset.month);
-    onPresetConsumedRef.current();
-  }, [plannerPreset]);
+    onPresetConsumed();
+  }, [plannerPreset, onPresetConsumed]);
 
   useEffect(() => {
     if (!tripSelection) return;
@@ -77,12 +69,12 @@ export default function PlannerForm({ plannerPreset, onPresetConsumed, tripSelec
     const primaryCity = tripSelection.cities?.[0] ?? tripSelection.destination.split(':')[0].trim();
     setTo(primaryCity);
     if (tripSelection.suggestedDays) setNumDays(tripSelection.suggestedDays);
-    onTripSelectionConsumedRef.current();
-  }, [tripSelection]);
+    onTripSelectionConsumed();
+  }, [tripSelection, onTripSelectionConsumed]);
 
   useEffect(() => {
-    onContextChangeRef.current?.({ to, month, age, womenFriendly });
-  }, [to, month, age, womenFriendly]);
+    onContextChange?.({ to, month, age, womenFriendly });
+  }, [to, month, age, womenFriendly, onContextChange]);
 
   const fetchWeather = async (dest: string, travelMonth: string) => {
     setWeatherData(null);

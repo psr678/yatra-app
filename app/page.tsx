@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Nav from '@/components/Nav';
 import Hero from '@/components/Hero';
 import Toast from '@/components/Toast';
@@ -75,6 +75,8 @@ export default function Home() {
   const [exploreInitialTab, setExploreInitialTab] = useState<'destinations' | 'circuits' | 'vibes' | 'quiz'>('destinations');
   const { toast, showToast } = useToast();
   const [plannerContext, setPlannerContext] = useState<{ to?: string; month?: string; age?: string; womenFriendly?: boolean }>({});
+  const handlePresetConsumed = useCallback(() => setPlannerPreset(null), []);
+  const handleTripSelectionConsumed = useCallback(() => setTripSelection(null), []);
 
   const scrollToPlanner = () => {
     setTimeout(() => {
@@ -129,9 +131,9 @@ export default function Home() {
             <p className="page-sub">Fill in your trip details — our AI builds a personalised day-by-day itinerary with hotels, food, budget and local tips</p>
             <PlannerForm
               plannerPreset={plannerPreset}
-              onPresetConsumed={() => setPlannerPreset(null)}
+              onPresetConsumed={handlePresetConsumed}
               tripSelection={tripSelection}
-              onTripSelectionConsumed={() => setTripSelection(null)}
+              onTripSelectionConsumed={handleTripSelectionConsumed}
               showToast={showToast}
               onContextChange={setPlannerContext}
             />

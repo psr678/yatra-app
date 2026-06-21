@@ -141,7 +141,7 @@ export default function AIResultBox({
   const isDaySection = activeSection && /itinerary|day.by.day/i.test(activeSection.title);
   const days: DayChunk[] = useMemo(
     () => (isDaySection ? parseDays(activeSection!.content, numDays) : []),
-    [activeSection, isDaySection]
+    [activeSection, isDaySection, numDays]
   );
   const useDayCollapse = numDays > 4 && days.length > 1;
   const isWeatherTab = /weather/i.test(activeSection?.title ?? '');
