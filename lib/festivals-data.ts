@@ -20,6 +20,7 @@ export const festivals: Festival[] = [
   { name: 'Eid ul-Fitr', emoji: '🌙', month: 4, destinations: ['Hyderabad', 'Lucknow', 'Old Delhi', 'Mumbai'], desc: 'End of Ramadan — streets alive with Mughlai food, illuminated mosques and festivity', type: 'religious' },
   { name: 'Buddha Purnima', emoji: '☮️', month: 5, destinations: ['Bodh Gaya', 'Sarnath', 'Leh'], desc: 'Birth of Buddha — serene candlelit processions at Bodh Gaya and Sarnath', type: 'religious' },
   { name: 'Rath Yatra', emoji: '🛕', month: 7, destinations: ['Puri', 'Ahmedabad'], desc: 'Grand chariot festival of Lord Jagannath — 45-foot wooden chariots pulled by thousands', type: 'religious' },
+  { name: 'Onam', emoji: '🌸', month: 8, destinations: ['Thiruvananthapuram', 'Thrissur', 'Kochi'], desc: 'Kerala\'s harvest festival — floral rangolis, snake boat races and grand Onam Sadhya feast', type: 'harvest' },
   { name: 'Ganesh Chaturthi', emoji: '🐘', month: 9, destinations: ['Mumbai', 'Pune', 'Hyderabad'], desc: '10-day elephant god festival — grandest in Mumbai with 150,000+ pandals', type: 'religious' },
   { name: 'Navratri', emoji: '💃', month: 10, destinations: ['Ahmedabad', 'Vadodara', 'Jaipur'], desc: '9 nights of garba & dandiya — biggest in Gujarat, declared UNESCO Intangible Heritage', type: 'religious' },
   { name: 'Pushkar Camel Fair', emoji: '🐪', month: 11, destinations: ['Pushkar', 'Ajmer'], desc: 'World-famous camel fair — 50,000 camels, folk music, balloon rides and desert culture', type: 'cultural' },
